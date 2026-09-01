@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RYmaphub</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="inner">
+        <a href="/" class="site-title">RYgamer</a>
+        <nav class="site-nav">
+          <a href="/">home</a>
+          <a href="/rymaphub/" class="active">rymaphub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <h1>RYmaphub</h1>
+      <p class="lede">
+        Upload an image and get a 128x128 Minecraft map, delivered as a series
+        of chat messages you paste in game at the RYmaphub map hub.
+      </p>
+
+      <div class="panel">
+        <div class="row">
+          <label for="imageUpload" class="file-label">Choose File</label>
+          <input type="file" id="imageUpload" accept="image/*" />
+          <button onclick="processImage()">Convert</button>
+        </div>
+        <div class="row">
+          <label class="inline"
+            ><input type="checkbox" id="ditherToggle" checked /> Dithering</label
+          >
+          <label class="inline"
+            >Encoding
+            <select id="modeSelect">
+              <option value="U" selected>Compact (Unicode, fewer messages)</option>
+              <option value="A">ASCII (more messages, safest)</option>
+            </select></label
+          >
+        </div>
+        <p class="muted" style="margin: 0.8rem 0 0">
+          For best results use a 128x128 image. Other sizes are stretched to
+          fit. Transparent pixels stay clear on the map.
+        </p>
+      </div>
+
+      <div id="output" style="display: none">
+        <h2>Messages</h2>
+        <div class="panel">
+          <div class="row">
+            <button id="copy-next-btn" onclick="copyNext()">Copy message 1</button>
+            <button class="secondary" onclick="resetCopying()">Start over</button>
+            <span id="msg-progress" class="muted"></span>
+          </div>
+          <ul id="msg-list"></ul>
+          <p id="stats-text" class="muted" style="margin: 0.8rem 0 0"></p>
+        </div>
+
+        <h2>Preview</h2>
+        <div class="preview-wrap">
+          <img id="map-image" alt="Map preview" title="Click to download" />
+          <div>
+            <p style="margin-top: 0">
+              This is how the map will look in Minecraft. Click it to download
+              the preview.
+            </p>
+            <p class="muted">
+              Not happy with the result? Try toggling dithering, or start from
+              a higher-contrast source image.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <h2>How to use it</h2>
+      <ol class="steps">
+        <li>Convert your image above.</li>
+        <li>
+          In game, use <code>/warp tp rymaphub</code> and click the import
+          sign. The script asks for message 1.
+        </li>
+        <li>
+          Click <em>Copy message 1</em>, paste it into chat, and press Enter.
+          The button advances to the next message each time you click it.
+        </li>
+        <li>
+          Keep going until the last message. The script checks every message
+          as it arrives and tells you if one was mangled, so just paste that
+          one again. Type <code>cancel</code> to abort.
+        </li>
+        <li>Once every message is in, the map builds and lands in your hand.</li>
+      </ol>
+      <p class="muted">
+        If the server refuses the compact messages, switch the encoding to
+        ASCII and convert again. It needs about twice as many messages but
+        uses only plain characters.
+      </p>
+    </main>
+
+    <footer>
+      Palette and colour matching adapted from
+      <a href="https://ak1089.github.io/minr/map-art">AK1089's map art maker</a>.
+      Source on
+      <a href="https://github.com/rysanders18/rysanders18.github.io">GitHub</a>.
+    </footer>
+  </body>
+</html>
