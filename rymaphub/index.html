@@ -51,25 +51,25 @@
         <!-- Hidden until the crop toggle is on. Starting hidden in the
              markup keeps them from flashing up before the script runs. -->
         <div id="crop-controls" class="sliders" style="display: none">
-          <label>Zoom <span id="zoomValue"></span>
+          <label>Zoom <span id="zoomValue">1.00x</span>
             <input type="range" id="zoomSlider" min="1" max="8" step="0.05" value="1" /></label>
-          <label>X <span id="xValue"></span>
+          <label>X <span id="xValue">50%</span>
             <input type="range" id="xSlider" min="0" max="100" step="1" value="50" /></label>
-          <label>Y <span id="yValue"></span>
+          <label>Y <span id="yValue">50%</span>
             <input type="range" id="ySlider" min="0" max="100" step="1" value="50" /></label>
         </div>
 
         <div id="height-controls" class="sliders">
-          <label>Max height <span id="maxHeightValue"></span>
+          <label>Max staircasing height <span id="maxHeightValue">32 blocks</span>
             <input type="range" id="maxHeightSlider" min="1" max="128" step="1" value="32" /></label>
         </div>
 
         <div class="sliders">
-          <label>Brightness <span id="brightnessValue"></span>
+          <label>Brightness <span id="brightnessValue">100%</span>
             <input type="range" id="brightnessSlider" min="0" max="200" step="1" value="100" /></label>
-          <label>Contrast <span id="contrastValue"></span>
+          <label>Contrast <span id="contrastValue">100%</span>
             <input type="range" id="contrastSlider" min="0" max="200" step="1" value="100" /></label>
-          <label>Saturation <span id="saturationValue"></span>
+          <label>Saturation <span id="saturationValue">100%</span>
             <input type="range" id="saturationSlider" min="0" max="200" step="1" value="100" /></label>
         </div>
 
@@ -80,8 +80,8 @@
         <p class="muted" style="margin: 0.8rem 0 0">
           Staircasing builds the map in 3D so every block gets three shades,
           tripling the palette. Valley mode keeps the build as low as possible.
-          Transparent pixels stay clear on the map. Max height caps how tall a
-          column may get: raising it buys a little accuracy on steep gradients,
+          Transparent pixels stay clear on the map. Max staircasing height caps how
+          tall a column may get: raising it buys a little accuracy on steep gradients,
           but the hub needs that many blocks of clear air above its floor.
         </p>
       </div>
