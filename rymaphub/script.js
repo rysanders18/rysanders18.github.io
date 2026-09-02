@@ -657,6 +657,7 @@ let currentMessages = [];
 let nextToCopy = 0;
 let renderTimer = null;
 let flashTimers = [];
+let flashing = false;
 
 function $(id) {
     return document.getElementById(id);
@@ -721,12 +722,15 @@ function updateCopyButton() {
     const bar = $("copy-bar");
     const total = currentMessages.length;
     if (bar) bar.style.width = total ? `${(nextToCopy / total) * 100}%` : "0";
+    // The counter and bar always follow the state, but the label belongs to
+    // the flash while one is running: anything that repaints the button in
+    // that second would otherwise wipe the confirmation off it.
     if (nextToCopy >= total) {
-        btn.textContent = "All messages copied";
+        if (!flashing) btn.textContent = "All messages copied";
         btn.disabled = true;
         progress.textContent = `${total} of ${total} copied`;
     } else {
-        btn.textContent = `Copy message ${nextToCopy + 1} of ${total}`;
+        if (!flashing) btn.textContent = `Copy message ${nextToCopy + 1} of ${total}`;
         btn.disabled = false;
         progress.textContent = `${nextToCopy} of ${total} copied`;
     }
@@ -757,7 +761,10 @@ function copyText(text) {
 function clearFlash() {
     flashTimers.forEach(clearTimeout);
     flashTimers = [];
+    flashing = false;
     $("copy-next-btn").classList.remove("copied", "fading");
+    document.querySelectorAll("#msg-list li.copied")
+        .forEach((li) => li.classList.remove("copied"));
 }
 
 // Confirms a copy on the main button for a second, then fades back to the
@@ -766,15 +773,22 @@ function clearFlash() {
 // has already happened by the time this runs.
 function flashCopied(index) {
     const btn = $("copy-next-btn");
-    flashTimers.forEach(clearTimeout);
-    flashTimers = [];
-    btn.classList.remove("fading");
+    clearFlash();
+    flashing = true;
     btn.classList.add("copied");
     btn.textContent = `Message ${index + 1} Copied!`;
+    // The button sits above a list that is a screenful on its own, so when
+    // the click came from a row far down it the button can be scrolled out
+    // of sight. Mark the row itself as well, and the confirmation is always
+    // where you are looking.
+    const row = document.querySelectorAll("#msg-list li")[index];
+    if (row) row.classList.add("copied");
     flashTimers.push(setTimeout(() => {
         btn.classList.add("fading");
         flashTimers.push(setTimeout(() => {
+            flashing = false;
             btn.classList.remove("copied", "fading");
+            if (row) row.classList.remove("copied");
             updateCopyButton();
         }, 200));
     }, 1000));

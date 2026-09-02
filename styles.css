@@ -228,6 +228,20 @@ ol.steps li {
   opacity: 0.45;
 }
 
+/* Confirmation on the row you clicked, in case the button is off-screen. */
+#msg-list li.copied {
+  opacity: 1;
+  background: var(--accent-soft);
+  box-shadow: inset 3px 0 0 var(--ok);
+}
+
+#msg-list li.copied::after {
+  content: "Copied!";
+  flex: 0 0 auto;
+  color: var(--ok);
+  font-weight: 600;
+}
+
 #msg-list .msg-num {
   flex: 0 0 2.2rem;
   text-align: right;
