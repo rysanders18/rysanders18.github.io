@@ -476,21 +476,27 @@ function mapHeights(masterIdx, staircase) {
 // skip(A, v) writes v as A[v] when v < prev and A[v+1] otherwise, where
 // prev is the value of the character just before it.
 
-// Characters per message. Minecraft's own chat field holds 256 characters,
-// but Minr rejected 250-character messages while accepting a 36-character
-// header, so the real ceiling is lower and is set by the server. It is a
-// page control rather than a constant: the in-game script reports how many
-// characters it actually received, so the limit can be found by trying one
-// message. Nothing in the decoder depends on this value.
-const DEFAULT_MSG_LEN = 80;
-const MAGIC = "RYMH4";
+// Characters per message. Minecraft's chat field holds 256, so 250 leaves
+// headroom. Messages were measured arriving at Minr at full length (250 in,
+// 250 out), so chat does not truncate them and this is a convenience
+// control, not a workaround. Nothing in the decoder depends on the value.
+const DEFAULT_MSG_LEN = 250;
+const MAGIC = "RYMH5";
 // Every pixel is a master colour index, so the symbol radix is fixed and no
 // per-image palette has to be transmitted.
 const COLOURS = MASTER_COUNT;
 // A run code repeats a symbol, and a P=2 symbol is two pixels, so one code
 // can ask emitPixels for 2 * MAX_REPS pixels. MSC lists cap at 1000.
 const MAX_REPS = 499;
-const ALPHABET_RANGES = [[0x3400, 0x4DBF], [0x4E00, 0x9FFF]];
+// Exactly the 2,980 characters protocol v1 used, and v1 imported into Minr
+// and round-tripped every message correctly. Growing the alphabet to 27,584
+// (adding CJK Extension A) is the only thing that changed under the hood
+// when data messages started failing their checksums while the header still
+// passed, so the alphabet is back to the size that is known to work.
+// It holds only 2,980 symbols, so 157 colours cannot square inside it and
+// P falls to 1 pixel per character. That roughly doubles the message count
+// and is the price of an encoding that is known to survive the trip.
+const ALPHABET_RANGES = [[0x4E00, 0x4E00 + 2979]];
 
 const ALPHA = (() => {
     const parts = [];
@@ -846,8 +852,16 @@ function verifyMessage() {
         }
     }
 
+    // The payload sum is what the in-game [diag] line prints, so quoting it
+    // here lets the two be compared directly.
+    const sumOf = cs => {
+        const body = cs[0] === MAGIC[0] && raw.startsWith(MAGIC) ? cs.slice(MAGIC.length) : cs;
+        let t = 0;
+        for (let i = 1; i < body.length - 1; i++) t += ALPHA.indexOf(body[i]);
+        return t;
+    };
     if (mine && mine === raw) {
-        say("ok-text", `Intact. ${chars.length} characters, matches the message on this page exactly.`);
+        say("ok-text", `Intact. ${chars.length} characters, payload sum ${sumOf(chars)}, matches the message on this page exactly.`);
         return;
     }
     if (mine) {
@@ -858,7 +872,7 @@ function verifyMessage() {
             ? `same length (${chars.length})`
             : `length ${chars.length}, should be ${theirs.length} (${theirs.length - chars.length} character${Math.abs(theirs.length - chars.length) === 1 ? "" : "s"} lost)`;
         const dropped = theirs[k] === undefined ? "" : ` First difference at position ${k + 1}: expected ${theirs[k]} (U+${theirs[k].codePointAt(0).toString(16).toUpperCase()}), got ${chars[k] === undefined ? "end of message" : chars[k] + " (U+" + chars[k].codePointAt(0).toString(16).toUpperCase() + ")"}.`;
-        say("bad-text", `Damaged: ${lenNote}.${dropped}`);
+        say("bad-text", `Damaged: ${lenNote}. Payload sum ${sumOf(chars)}, should be ${sumOf(theirs)}.${dropped}`);
         return;
     }
 
