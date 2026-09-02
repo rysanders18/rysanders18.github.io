@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ctext x='0' y='13' font-size='13'%3E%F0%9F%A7%AE%3C/text%3E%3C/svg%3E">
+<title>Principia Biscotica</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --paper:#FBFAF5;
+    --ink:#221E16;
+    --faded:#6E6656;
+    --rule:#D9D2C2;
+    --rule-soft:#E8E2D4;
+    --accent:#8F5A0F;
+    --gold:#A07708;
+    --dia:#0E7C86;
+    --thm-bg:#F5F1E6;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#1B211E;
+      --ink:#E8E4D6;
+      --faded:#9AA093;
+      --rule:#3B443F;
+      --rule-soft:#2C342F;
+      --accent:#E0A65C;
+      --gold:#D9B44A;
+      --dia:#5BC8CE;
+      --thm-bg:#212925;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#1B211E;
+    --ink:#E8E4D6;
+    --faded:#9AA093;
+    --rule:#3B443F;
+    --rule-soft:#2C342F;
+    --accent:#E0A65C;
+    --gold:#D9B44A;
+    --dia:#5BC8CE;
+    --thm-bg:#212925;
+  }
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"STIX Two Text", Georgia, "Times New Roman", serif;
+    font-size:1.05rem;
+    line-height:1.62;
+    margin:0;
+    padding:3rem 1.25rem 5rem;
+  }
+  .paper{max-width:46rem;margin:0 auto;}
+  .masthead{
+    font-family:"IBM Plex Mono", Consolas, monospace;
+    font-size:.72rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--faded);
+    display:flex;
+    justify-content:space-between;
+    gap:1rem;
+    flex-wrap:wrap;
+    border-top:2px solid var(--ink);
+    border-bottom:1px solid var(--rule);
+    padding:.55rem 0;
+    margin-bottom:3rem;
+  }
+  h1{
+    font-size:2.5rem;
+    font-weight:600;
+    text-align:center;
+    line-height:1.15;
+    margin:0 0 .6rem;
+    text-wrap:balance;
+    letter-spacing:.01em;
+  }
+  .subtitle{
+    text-align:center;
+    font-style:italic;
+    font-size:1.12rem;
+    color:var(--faded);
+    margin:0 auto 1.8rem;
+    max-width:36rem;
+    text-wrap:balance;
+  }
+  .authors{
+    text-align:center;
+    font-variant:small-caps;
+    letter-spacing:.06em;
+    font-size:1.02rem;
+    margin-bottom:.2rem;
+  }
+  .affil{
+    text-align:center;
+    font-style:italic;
+    font-size:.9rem;
+    color:var(--faded);
+    margin-bottom:2.4rem;
+  }
+  .abstract{
+    max-width:38rem;
+    margin:0 auto 3rem;
+    font-size:.93rem;
+    line-height:1.58;
+    text-align:justify;
+    hyphens:auto;
+  }
+  .abstract .lead{font-variant:small-caps;font-weight:600;letter-spacing:.05em;}
+  h2{
+    font-size:1.12rem;
+    font-weight:600;
+    font-variant:small-caps;
+    letter-spacing:.08em;
+    text-align:center;
+    margin:3.2rem 0 1.2rem;
+  }
+  h2 .no{color:var(--accent);margin-right:.6em;}
+  p{margin:0 0 1rem;text-align:justify;hyphens:auto;}
+  .env{
+    border-left:2px solid var(--accent);
+    background:var(--thm-bg);
+    padding:.8rem 1.1rem .55rem;
+    margin:1.4rem 0;
+  }
+  .env p{margin-bottom:.55rem;}
+  .env .label{font-weight:700;font-variant:normal;}
+  .env .label .name{font-weight:500;font-style:italic;}
+  .env.thm p.stmt{font-style:italic;}
+  .env.thm p.stmt em{font-style:normal;}
+  .proof{font-size:.95rem;}
+  .proof .pl{font-style:italic;}
+  .qed{float:right;}
+  .disp{overflow-x:auto;overflow-y:hidden;padding:.6rem 0 .7rem;margin:.2rem 0 .8rem;}
+  mjx-container{max-width:100%;}
+  mjx-container[jax="SVG"][display="true"]{margin:.3rem 0 !important;}
+  .remark{
+    font-size:.92rem;
+    color:var(--faded);
+    border-top:1px solid var(--rule-soft);
+    border-bottom:1px solid var(--rule-soft);
+    padding:.7rem 0;
+    margin:1.4rem 0;
+  }
+  .remark .label{font-variant:small-caps;font-weight:600;color:var(--ink);letter-spacing:.04em;}
+  .const{font-family:"IBM Plex Mono", Consolas, monospace;font-size:.85em;}
+  .gold{color:var(--gold);}
+  .dia{color:var(--dia);}
+  .tablewrap{overflow-x:auto;margin:1.3rem 0;}
+  table{
+    border-collapse:collapse;
+    margin:0 auto;
+    font-family:"IBM Plex Mono", Consolas, monospace;
+    font-size:.74rem;
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+  }
+  caption{
+    font-family:"STIX Two Text", Georgia, serif;
+    font-size:.85rem;
+    font-style:italic;
+    color:var(--faded);
+    padding-bottom:.5rem;
+    caption-side:top;
+  }
+  thead th{
+    border-top:1.5px solid var(--ink);
+    border-bottom:1px solid var(--rule);
+    font-weight:500;
+    text-align:right;
+    padding:.3rem .65rem;
+  }
+  thead th:first-child,tbody td:first-child{text-align:left;}
+  tbody td{text-align:right;padding:.22rem .65rem;}
+  tbody tr:last-child td{border-bottom:1.5px solid var(--ink);}
+  .fns{
+    margin-top:3.5rem;
+    border-top:1px solid var(--rule);
+    padding-top:1rem;
+    font-size:.82rem;
+    color:var(--faded);
+  }
+  .fns p{margin-bottom:.5rem;text-align:left;}
+  sup.fn{color:var(--accent);font-size:.72em;}
+  .endrule{
+    text-align:center;
+    color:var(--faded);
+    letter-spacing:.5em;
+    margin-top:3rem;
+    font-size:.9rem;
+  }
+  a{color:var(--accent);}
+  @media (prefers-reduced-motion: no-preference){
+    .paper{animation:settle .5s ease-out;}
+    @keyframes settle{from{opacity:.35}to{opacity:1}}
+  }
+</style>
+
+<script>
+window.MathJax = {
+  tex: { tags: 'ams', tagSide: 'right' },
+  svg: { fontCache: 'global' },
+  chtml: { scale: 1 }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+
+<div class="paper">
+
+<div class="masthead">
+  <span>zero.minr.org</span>
+  <span>Harder Hat &mdash; Secret 16</span>
+  <span>September 2026</span>
+</div>
+
+<h1>Principia Biscotica</h1>
+<p class="subtitle">On the Variational Optimization of Anthropogenic Cookie Flux in a Discrete-Tick Universe</p>
+
+<p class="authors">RYgamer1</p>
+<p class="affil">zero.minr.org</p>
+
+<div class="abstract">
+<p><span class="lead">Abstract.</span> We consider the cookie-clicker minigame of Harder Hat secret 16 (zero.minr.org): a confectionery production system driven by a 20&thinsp;Hz anthropogenic click field, subject to a millisecond cooldown gate evaluated on a 50&thinsp;ms tick lattice, with stochastic auric emission into a 14-site boundary lattice and a periodically available lactic amplification field. We formulate the upgrade-acquisition problem as optimal control over a seven-dimensional state manifold of cardinality \(3.78\times10^{8}\) (a space strictly larger than the production goal it serves), derive the steady-state flux by Karush–Kuhn–Tucker analysis of the click-allocation program, solve the milk-hoarding problem as a free-boundary optimal-stopping problem, and characterize the optimal purchase sequence via a payback index policy on the Hamilton–Jacobi–Bellman equation. The ground-state completion time is computed to be \(T^{\star}=1365\ \mathrm{s}=22{:}45\), attained by a trajectory of 331 purchases. All constants are exact and taken from the map&rsquo;s script source (<span class="const">Cookie.nms</span>).</p>
+</div>
+
+<h2><span class="no">1.</span>The State Manifold</h2>
+
+<p>Let the player&rsquo;s upgrade configuration be the septuple</p>
+<div class="disp">
+\begin{equation}
+\sigma \;=\; (c,\mu,\gamma,\delta,\chi,d,k)\;\in\;\mathcal{S}\;:=\;\mathbb{Z}_{12}\times\mathbb{Z}_{501}\times\mathbb{Z}_{17}\times\mathbb{Z}_{14}\times\{0,1\}\times\mathbb{Z}_{11}\times\mathbb{Z}_{12},
+\end{equation}
+</div>
+<p>recording, respectively, purchases in the cooldown, multiplier, auric-emission, diamond-fraction, milk-unlock, lactic-duration, and lactic-amplitude ladders. We note with some alarm that</p>
+<div class="disp">
+\begin{equation}
+|\mathcal{S}| \;=\; 12\cdot 501\cdot 17\cdot 14\cdot 2\cdot 11\cdot 12 \;=\; 377{,}745{,}984 \;&gt;\; \mathcal{G} := 10^{8},
+\end{equation}
+</div>
+<p>i.e. the game admits more distinct upgrade configurations than the number of cookies it demands.<sup class="fn">1</sup> Each coordinate induces a ladder map into physical parameters, expressible in Iverson-bracket normal form; for instance the cooldown map \(C:\mathbb{Z}_{12}\to\mathbb{R}_{&gt;0}\) (milliseconds) is</p>
+<div class="disp">
+\begin{equation}
+C(c) \;=\; 1000\,[c=0] \;+\; \sum_{j=1}^{11} C_j\,[c=j],\qquad
+(C_j) = (400,300,225,175,125,100,80,65,55,51,50),
+\end{equation}
+</div>
+<p>with analogous maps \(G(\gamma)\) (auric odds \(1/G\)), \(D(\delta)\) (diamond odds \(1/D\)), \(T(d)\) (lactic window, s), and \(K(k)\) (lactic amplitude); their full tabulations are relegated to Appendix A. The multiplier map alone admits a closed form:</p>
+<div class="disp">
+\begin{equation}
+M(\mu) \;=\; \mu+1.
+\end{equation}
+</div>
+
+<h2><span class="no">2.</span>The Click Field and Its Gating</h2>
+
+<p>The player&rsquo;s hand is modeled as a Dirac comb of fundamental frequency \(f_{\!*}=20\) Hz,</p>
+<div class="disp">
+\begin{equation}
+\mathcal{K}(t)\;:=\;\sum_{n=0}^{\infty}\delta\!\left(t-\tfrac{n}{f_{\!*}}\right),
+\end{equation}
+</div>
+<p>assumed exactly periodic for all \(t\in[0,T^\star]\); ulnar fatigue is beyond the scope of this work.<sup class="fn">2</sup> A click at epoch \(t_n\) directed at the principal cookie <em>lands</em> if and only if the cooldown gate opens,</p>
+<div class="disp">
+\begin{equation}
+\Theta\!\bigl(\lfloor t_n\rfloor_{\mathbb{T}} - \lfloor t_{\mathrm{last}}\rfloor_{\mathbb{T}} - C(c)\bigr)\;=\;1,
+\qquad \mathbb{T}:=50\,\mathbb{Z}\ \text{ms},
+\end{equation}
+</div>
+<p>where \(\Theta\) is the Heaviside step and \(\lfloor\cdot\rfloor_{\mathbb{T}}\) denotes quantization onto the server tick lattice — a detail whose consequences for the terminal cooldown tiers are examined in Theorem 2.2. Auric clicks bypass the gate entirely but are drawn from the same 20&thinsp;Hz hand budget; the two channels therefore compete. Writing \(m\) for the landed principal-click rate, \(s\) for the auric harvest rate, and \(p:=1/G\), the steady-state flux is the value of the linear program</p>
+<div class="disp">
+\begin{equation}
+R_0(\sigma)\;=\;\max_{(m,s)\in\mathbb{R}^2_{\ge 0}}\;\bigl\{\,mM+sV \;\big|\; m+s\le f_{\!*},\;\; m\le \tfrac{1000}{C},\;\; (1-p)\,s\le p\,m \,\bigr\},
+\end{equation}
+</div>
+<p>where the third constraint is conservation of spawned aurics (one cannot harvest what has not spawned) and \(V\) is the mean auric value derived in §3. Stationarity of the Lagrangian \(\mathcal{L}=mM+sV-\lambda_1(m+s-f_{\!*})-\lambda_2(m-\tfrac{1000}{C})-\lambda_3((1-p)s-pm)\) together with complementary slackness yields the closed form:</p>
+
+<div class="env thm">
+<p class="stmt"><span class="label">Proposition 2.1 <span class="name">(Click allocation)</span>.</span> The program above is solved by
+\begin{equation}
+m^{\star}=\min\!\left\{\frac{1000}{C},\; f_{\!*}\Bigl(1-\frac{1}{G}\Bigr)\right\},
+\qquad
+s^{\star}=\frac{m^{\star}}{G-1},
+\end{equation}
+the two branches of the min corresponding to the cooldown-bound phase (\(\lambda_2&gt;0\)) and the budget-bound phase (\(\lambda_1&gt;0\)) respectively.</p>
+</div>
+
+<div class="env thm">
+<p class="stmt"><span class="label">Theorem 2.2 <span class="name">(Obsolescence of the terminal cooldown tiers)</span>.</span> Along any trajectory that reaches auric odds \(p\ge \tfrac1{10}\) (i.e. \(\gamma\ge 8\)), the tiers \(c=10\) (51 ms) and \(c=11\) (50 ms) satisfy
+\begin{equation}
+\frac{\partial R_0}{\partial c}\bigg|_{c\ge 9} = 0 .
+\end{equation}
+</p>
+<p class="proof"><span class="pl">Proof.</span> For \(p\ge\tfrac1{10}\), the budget bound gives \(f_{\!*}(1-p)\le 18 &lt; \tfrac{1000}{55}=18.\overline{18}\), so the min in Proposition 2.1 is already achieved by the budget branch at \(c=9\); further reduction of \(C\) tightens an inactive constraint. The 30,000 cookies those two tiers cost buy nothing. <span class="qed">∎</span></p>
+</div>
+
+<h2><span class="no">3.</span>Auric Emission and the Boundary Lattice</h2>
+
+<p>Every landed click, principal or auric, performs an independent Bernoulli(\(p\)) trial; success emits one auric quantum onto a uniformly chosen site of the boundary lattice \(\mathfrak{S}\), \(|\mathfrak{S}|=14\), the emission being annihilated if the site is occupied. Each quantum carries a species drawn from the measure</p>
+<div class="disp">
+\begin{equation}
+\nu \;=\; \Bigl(1-\tfrac{1}{D}\Bigr)\,\delta_{\mathrm{Au}} \;+\; \tfrac{1}{D}\,\delta_{\mathrm{C}},
+\end{equation}
+</div>
+<p>where Au denotes the <span class="gold">golden</span> species (worth \(20M\)) and C the <span class="dia">diamond</span> species<sup class="fn">3</sup> (worth \(200M\)), so the mean harvested value per quantum is</p>
+<div class="disp">
+\begin{equation}
+V(\sigma) \;=\; M\!\int w\,\mathrm{d}\nu \;=\; M\Bigl[\,20\Bigl(1-\frac1D\Bigr) + \frac{200}{D}\Bigr] \;=\; M\Bigl(20+\frac{180}{D}\Bigr).
+\end{equation}
+</div>
+<p>Under the eager-harvest policy the lattice is a.s. empty at emission epochs and annihilation is negligible. For completeness we record that a lazy harvester with offered load \(a=s^\star\) faces the Erlang loss probability</p>
+<div class="disp">
+\begin{equation}
+B(a,14) \;=\; \frac{a^{14}/14!}{\displaystyle\sum_{j=0}^{14} a^{j}/j!}\,,
+\end{equation}
+</div>
+<p>the verification of which is left as an exercise.</p>
+
+<h2><span class="no">4.</span>Lactic Field Theory</h2>
+
+<p>Once \(\chi=1\) (a 15,000-cookie tithe), the lactic field may be excited once per period \(\Lambda=45\) s, remaining active for \(T(d)\) seconds during which <em>all</em> gains are amplified by \(K(k)\). The economically interesting phenomenon is <em>hoarding</em>: suspending auric harvest for the final \(\tau\) seconds of downtime so that quanta accumulate on \(\mathfrak{S}\) and are harvested under amplification. Occupancy \(b(\tau)\) obeys the saturating kinetics</p>
+<div class="disp">
+\begin{equation}
+\frac{\mathrm{d}b}{\mathrm{d}\tau} \;=\; a\Bigl(1-\frac{b}{14}\Bigr),\qquad b(0)=0
+\quad\Longrightarrow\quad
+b(\tau) \;=\; 14\bigl(1-e^{-a\tau/14}\bigr),
+\end{equation}
+</div>
+<p>since a full lattice annihilates its own emissions. Hoarding trades foregone unamplified harvest \(aV\tau\) against amplified recovery \(K V b(\tau)\); the hoard functional is therefore</p>
+<div class="disp">
+\begin{equation}
+J(\tau) \;=\; K V\, b(\tau) \;-\; aV\tau .
+\end{equation}
+</div>
+
+<div class="env thm">
+<p class="stmt"><span class="label">Theorem 4.1 <span class="name">(Optimal hoarding horizon)</span>.</span> The functional \(J\) is uniquely maximized on \([0,\Lambda-T]\) at
+\begin{equation}
+\tau^{\star} \;=\; \min\!\left\{\Lambda-T,\;\; \frac{14}{a}\,\ln K\right\}.
+\end{equation}
+</p>
+<p class="proof"><span class="pl">Proof.</span> \(J'(\tau)=aV\bigl(Ke^{-a\tau/14}-1\bigr)\) vanishes iff \(e^{a\tau/14}=K\), and \(J''(\tau)=-\tfrac{a^{2}KV}{14}e^{-a\tau/14}&lt;0\) everywhere, so the interior critical point is the global maximum; the boundary clamp handles the case where downtime ends first. <span class="qed">∎</span></p>
+</div>
+
+<p>Averaging over one period, the milk-aware flux is</p>
+<div class="disp">
+\begin{equation}
+\bar R(\sigma) \;=\; \frac{1}{\Lambda}\Bigl[(\Lambda-T)\,R_0 \;+\; T K R_0 \;+\; \chi\, J(\tau^\star)^{+}\Bigr].
+\end{equation}
+</div>
+<p>At the terminal configuration (\(K=20\), \(T=20\), \(a=10\)): \(\tau^\star = 1.4\ln 20 \approx 4.19\) s, \(b(\tau^\star)\approx 13.3\) quanta, and \(J(\tau^\star)\approx 4.88\times 10^{6}\) cookies per period — the effective amplification averages \(\tfrac{25+20\cdot 20}{45}\approx 9.44\times\) before the hoard is even counted.</p>
+
+<h2><span class="no">5.</span>The Purchase Functional and Its Bellman Equation</h2>
+
+<p>Between purchases the bank evolves as \(\dot B = \bar R(\sigma)\); a purchase \(u\) at price \(P_u\) induces the jump \((\sigma,B)\mapsto(\sigma\oplus u,\;B-P_u)\). A strategy is a purchase sequence \(\pi=(u_1,\dots,u_N)\), and the object of the entire enterprise is the completion-time functional</p>
+<div class="disp">
+\begin{equation}
+T[\pi] \;=\; \sum_{i=1}^{N}\frac{\bigl(P_{u_i}-B_{i^-}\bigr)^{+}}{\bar R(\sigma_{i-1})}\;+\;\frac{\mathcal{G}-B_{N}}{\bar R(\sigma_N)},
+\qquad
+T^{\star}\;=\;\inf_{\pi\in\Pi}\;T[\pi].
+\end{equation}
+</div>
+<p>The value function \(W(\sigma,B)\) (time-to-go) satisfies the Hamilton–Jacobi–Bellman quasi-variational inequality</p>
+<div class="disp">
+\begin{equation}
+\min\!\Biggl\{\,\bar R(\sigma)\,\frac{\partial W}{\partial B}+1,\;\;
+\min_{u\in\mathcal{U}(\sigma),\,P_u\le B}\bigl[\,W(\sigma\oplus u,\,B-P_u)-W(\sigma,B)\,\bigr]\Biggr\}=0,
+\qquad W(\cdot,\mathcal{G})=0,
+\end{equation}
+</div>
+<p>whose exact solution over \(|\mathcal{S}|\times[0,\mathcal{G}]\) is left as an exercise for a larger computer. In practice the optimum is attained (to within measurement) by the <em>payback index policy</em>: at each decision epoch, buy</p>
+<div class="disp">
+\begin{equation}
+u^{\star} \;=\; \operatorname*{arg\,min}_{u\,:\,\Delta\bar R_u&gt;0}\;
+\underbrace{\frac{(P_u-B)^{+}}{\bar R(\sigma)}}_{\text{saving up}}
+\;+\;
+\underbrace{\frac{P_u}{\Delta \bar R_u}}_{\text{amortization}},
+\qquad
+\Delta\bar R_u:=\bar R(\sigma\oplus u)-\bar R(\sigma),
+\end{equation}
+</div>
+<p>subject to the admissibility (myopic-improvement) criterion that the purchase strictly reduce the projected finish time,</p>
+<div class="disp">
+\begin{equation}
+\frac{(P_u-B)^{+}}{\bar R(\sigma)}+\frac{\mathcal{G}-B'}{\bar R(\sigma\oplus u)} \;&lt;\; \frac{\mathcal{G}-B}{\bar R(\sigma)},
+\end{equation}
+</div>
+<p>terminating (all further purchases inadmissible) in a final sprint to \(\mathcal{G}\).</p>
+
+<div class="remark">
+<p><span class="label">Remark (a false vacuum).</span> A width-600 beam search over the same lattice relaxed into a metastable configuration at \(T=7585\) s, from which the index policy tunnels directly to \(T^\star=1365\) s.</p>
+</div>
+
+<h2><span class="no">6.</span>Arithmetic of the Multiplier Ladder</h2>
+
+<p>The multiplier stage prices \(P_\mu(i)=10+5i(i+1)\), \(i=0,\dots,499\), assemble into the ordinary generating function</p>
+<div class="disp">
+\begin{equation}
+\sum_{i=0}^{\infty}P_\mu(i)\,x^{i} \;=\; \frac{10}{1-x}\;+\;\frac{10\,x}{(1-x)^{3}},
+\end{equation}
+</div>
+<p>from which (equivalently, by Faulhaber&rsquo;s formula) the cumulative cost of the first \(n\) stages is the cubic</p>
+<div class="disp">
+\begin{equation}
+\Phi(n)\;=\;\sum_{i=0}^{n-1}\bigl(10+5i(i+1)\bigr) \;=\; 10n+\frac{5}{3}\bigl(n^{3}-n\bigr).
+\end{equation}
+</div>
+
+<div class="env thm">
+<p class="stmt"><span class="label">Theorem 6.1 <span class="name">(Insufficiency of the ladder&rsquo;s tail)</span>.</span> Completing the multiplier ladder costs
+\begin{equation}
+\Phi(500) \;=\; 208{,}337{,}500 \;&gt;\; 2\,\mathcal{G},
+\end{equation}
+and the tail beyond the optimal stopping stage \(\mu^\star=271\) alone costs \(\Phi(500)-\Phi(271)=175{,}164{,}390&gt;\mathcal{G}\). The trajectory that maxes the multiplier before pressing the Secret Completion Button has therefore, by construction, already earned the goal 1.75 times over and spent it on the wrong thing.</p>
+</div>
+
+<h2><span class="no">7.</span>The Ground State</h2>
+
+<p>Assembling §§2–4 into a single object, the stationary flux admits the following fully reduced form, displayed once in full:</p>
+<div class="disp">
+\begin{equation}
+\bar R(\sigma)=\frac{1}{45}\left[
+\Bigl(45+\chi\,(K-1)\,T\Bigr)
+\underbrace{\min\Bigl\{\tfrac{1000}{C},\,20\bigl(1-\tfrac1G\bigr)\Bigr\}}_{m^\star}
+(\mu{+}1)\Bigl(1+\tfrac{20+\frac{180}{D}}{G-1}\Bigr)
++\chi\!\left(14K\,\Xi\Bigl(1-e^{-\frac{m^\star}{14(G-1)}\,\tau^\star}\Bigr)-\tfrac{m^\star \tau^\star}{G-1}\,\Xi\right)^{\!+}
+\right]
+\end{equation}
+</div>
+<p>with \(\Xi:=(\mu+1)\bigl(20+\tfrac{180}{D}\bigr)\) and \(\tau^\star\) as in Theorem 4.1. Maximizing \(T[\pi]^{-1}\) over the 377,745,984-point lattice by the index policy of §5 yields the empirical ground state:</p>
+<div class="disp">
+\begin{equation}
+\sigma^{\star}=(9,\,271,\,16,\,13,\,1,\,10,\,11):\qquad
+C=55\ \mathrm{ms},\;\; M=272,\;\; G=2,\;\; D=3,\;\; T=20\ \mathrm{s},\;\; K=20,
+\end{equation}
+</div>
+<div class="disp">
+\begin{equation}
+m^{\star}=s^{\star}=10\ \mathrm{s}^{-1},\qquad
+V=21{,}760,\qquad
+R_0=220{,}320\ \mathrm{s}^{-1},\qquad
+\bar R\approx 2.19\times10^{6}\ \mathrm{s}^{-1},
+\end{equation}
+</div>
+<p>at which point \(98.8\%\) of income flows through the auric channel and the principal cookie is reduced to a ceremonial role. Defining the strategy partition function at inverse temperature \(\beta\),</p>
+<div class="disp">
+\begin{equation}
+Z(\beta)\;=\;\sum_{\pi\in\Pi} e^{-\beta\,T[\pi]},
+\qquad
+T^{\star}\;=\;-\lim_{\beta\to\infty}\frac{1}{\beta}\,\ln Z(\beta),
+\end{equation}
+</div>
+<p>the zero-temperature limit selects the 331-purchase trajectory with</p>
+<div class="disp">
+\begin{equation}
+\boxed{\;T^{\star} \;=\; 1365\ \mathrm{s} \;=\; 22{:}45\;}
+\end{equation}
+</div>
+<p>during which \(136{,}406{,}095\) cookies are reinvested and roughly \(2.36\times10^{8}\) are earned in total.</p>
+
+<h2><span class="no">8.</span>The Grand Unified Cookie Equation</h2>
+
+<p>Substituting §§1&ndash;6 into §7 gives the entire model — hand, gate, aurics, milk, hoard, wallet, and the minimization itself — as a single expression. The symbol \(m_i^{\star}\) is defined by its own underbrace and reused in the third line.</p>
+
+<div class="disp">
+\begin{equation}
+\begin{split}
+T^{\star}\;=\;
+&\;\underbrace{-\,\lim_{\beta\to\infty}\;\frac{1}{\beta}\,\ln\!\!\sum_{\pi\in\Pi}\,\exp}_{\text{minimization over all purchase orders}}
+\Biggl(\,-\beta\sum_{i=0}^{|\pi|}\;
+\underbrace{45\,\Bigl[\,\bigl(P_{u_{i+1}}-B_i\bigr)^{+}\,\bigl[\,i\lt|\pi|\,\bigr]\;+\;\bigl(10^{8}-B_i\bigr)\,\bigl[\,i=|\pi|\,\bigr]\Bigr]}_{\text{the wallet, per lactic period}}
+\;\times\\[6pt]
+&\Biggl\{\;
+\underbrace{\Bigl(45+\chi_i\bigl(K(k_i)-1\bigr)\,T(d_i)\Bigr)}_{\text{lactic amplification}}\,
+\underbrace{\min\Biggl\{1000\Bigl(\textstyle\sum\limits_{j=0}^{11}C_j\,[\,c_i=j\,]\Bigr)^{\!-1}\!,\;\;20\Bigl(1-\frac{1}{G(\gamma_i)}\Bigr)\Biggr\}}_{=:\;m_i^{\star}\ \ \text{(the hand meets the gate)}}
+\;\underbrace{\bigl(\mu_i+1\bigr)}_{\text{the multiplier}}\;
+\underbrace{\Biggl(1+\Bigl(20+\frac{180}{D(\delta_i)}\Bigr)\bigl(G(\gamma_i)-1\bigr)^{-1}\Biggr)}_{\text{the auric channel}}\\[6pt]
+&\;+\;\chi_i\,\bigl(\mu_i+1\bigr)\Bigl(20+\frac{180}{D(\delta_i)}\Bigr)\Biggl(\,
+\underbrace{14\,K(k_i)\biggl(1-\exp\Bigl(-\frac{1}{14}\min\Bigl\{\frac{\bigl(45-T(d_i)\bigr)\,m_i^{\star}}{G(\gamma_i)-1},\;14\ln K(k_i)\Bigr\}\Bigr)\biggr)}_{\text{the hoard}}
+\;-\;
+\underbrace{\min\Bigl\{\frac{\bigl(45-T(d_i)\bigr)\,m_i^{\star}}{G(\gamma_i)-1},\;14\ln K(k_i)\Bigr\}}_{\text{forgone unamplified harvest}}
+\Biggr)^{\!\!+}\;\Biggr\}^{-1}\,\Biggr)\\[8pt]
+&\;\text{subject to}\quad B_0=0,\qquad \sigma_0=\mathbf{0},\qquad B_{i+1}=\bigl(B_i-P_{u_{i+1}}\bigr)^{+},\qquad \sigma_{i+1}=\sigma_i\oplus u_{i+1},\\[6pt]
+&\;=\;1365\ \mathrm{s}\;=\;22{:}45.
+\end{split}
+\end{equation}
+</div>
+
+<p>Every quantity above is exact: the Iverson sum in the denominator of \(m_i^\star\) is the cooldown ladder of eq. (3); the factor \(\bigl(20+\tfrac{180}{D}\bigr)\) is the species integral of eq. (11); the nested min inside the exponential is Theorem 4.1 with \(a\tau^\star\) pre-multiplied; the outer \((\cdot)^{+}\) is the hoard admissibility of eq. (16); the bank recursion encodes the save-up waits of eq. (17); and the zero-temperature limit performs the minimization of eq. (27) over all \(|\Pi|\) purchase orderings so that the reader does not have to. Evaluation of the right-hand side is by inspection.<sup class="fn">4</sup></p>
+
+<h2><span class="no">A.</span>Appendix: Ladder Tabulations</h2>
+
+<div class="tablewrap">
+<table>
+<caption>Table 1. Cooldown ladder \(C(c)\), ms. Tiers 10–11 are dead by Theorem 2.2.</caption>
+<thead><tr><th>c</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th></tr></thead>
+<tbody>
+<tr><td>price</td><td>10</td><td>25</td><td>100</td><td>400</td><td>800</td><td>1,300</td><td>2,000</td><td>3,000</td><td>5,000</td><td>10,000</td><td>20,000</td></tr>
+<tr><td>C</td><td>400</td><td>300</td><td>225</td><td>175</td><td>125</td><td>100</td><td>80</td><td>65</td><td>55</td><td>51</td><td>50</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="tablewrap">
+<table>
+<caption>Table 2. Auric-odds ladder \(G(\gamma)\); spawn probability is \(1/G\) per landed click.</caption>
+<thead><tr><th>γ</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th><th>13</th><th>14</th><th>15</th><th>16</th></tr></thead>
+<tbody>
+<tr><td>price</td><td>100</td><td>250</td><td>1k</td><td>3k</td><td>7k</td><td>12k</td><td>25k</td><td>50k</td><td>125k</td><td>250k</td><td>500k</td><td>1M</td><td>2.5M</td><td>5M</td><td>10M</td><td>25M</td></tr>
+<tr><td>G</td><td>40</td><td>30</td><td>25</td><td>20</td><td>17</td><td>14</td><td>12</td><td>10</td><td>9</td><td>8</td><td>7</td><td>6</td><td>5</td><td>4</td><td>3</td><td>2</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="tablewrap">
+<table>
+<caption>Table 3. Diamond-fraction ladder \(D(\delta)\); one auric in \(D\) is diamond.</caption>
+<thead><tr><th>δ</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th><th>13</th></tr></thead>
+<tbody>
+<tr><td>price</td><td>1k</td><td>2k</td><td>4k</td><td>20k</td><td>80k</td><td>250k</td><td>450k</td><td>900k</td><td>1.6M</td><td>3M</td><td>5M</td><td>7.5M</td><td>10M</td></tr>
+<tr><td>D</td><td>100</td><td>75</td><td>50</td><td>40</td><td>32</td><td>25</td><td>20</td><td>15</td><td>10</td><td>7</td><td>5</td><td>4</td><td>3</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="tablewrap">
+<table>
+<caption>Table 4. Lactic window \(T(d)\), s, and amplitude \(K(k)\). Unlock tithe: 15,000.</caption>
+<thead><tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th></tr></thead>
+<tbody>
+<tr><td>T price</td><td>50k</td><td>100k</td><td>175k</td><td>250k</td><td>400k</td><td>600k</td><td>800k</td><td>1.15M</td><td>1.5M</td><td>2M</td><td>—</td></tr>
+<tr><td>T</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>12</td><td>14</td><td>16</td><td>18</td><td>20</td><td>—</td></tr>
+<tr><td>K price</td><td>100k</td><td>200k</td><td>400k</td><td>600k</td><td>900k</td><td>1.2M</td><td>1.5M</td><td>2M</td><td>3.5M</td><td>5M</td><td>7.5M</td></tr>
+<tr><td>K</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>12</td><td>15</td><td>20</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="fns">
+<p><sup class="fn">1</sup> Of these 377,745,984 configurations, the optimal trajectory visits exactly 332.</p>
+<p><sup class="fn">2</sup> 20 Hz is the click rate assumed throughout by the accompanying optimizer, <span class="const">cookie_opt.py</span>.</p>
+<p><sup class="fn">3</sup> The diamond species is denoted C because diamond is carbon.</p>
+<p><sup class="fn">4</sup> Cf. <span class="const">cookie_upgrade_order.txt</span>, all 331 lines of which were inspected.</p>
+</div>
+
+<p class="endrule">✦ ✦ ✦</p>
+
+</div>
