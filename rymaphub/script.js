@@ -448,19 +448,37 @@ function mapHeights(masterIdx, staircase) {
 // Let K = number of distinct colours used, P = pixels per plain symbol
 // (2 when K^2 fits the alphabet, else 1), base = K^P, N = alphabet size.
 //   symbol s <  base : P pixels. P=1: s. P=2: floor(s/K) then s%K.
-//   symbol s >= base : run code - repeat the previous pixel (s-base+2) more times.
-// Runs are capped at 999 pixels (MSC lists hold at most 1000 elements).
+//   symbol s >= base : run code - repeat the previous PLAIN SYMBOL
+//                      (s - base + 1) more times, so a run code repeats
+//                      both pixels of a pair, not just the last one.
+// Repeats are capped at MAX_REPS per code so the decoder's inner loops stay
+// under the MSC 1000-element list limit.
 //
-// Messages (each <= MSG_LEN characters):
-//   header : "RYMH2" + A[P] + A[nMsgs] + A[K] + A[palette[0..K-1]] + A[check]
-//            check = (P + nMsgs + K + sum(palette)) % N
-//   data i : A[i] + payload + A[check],  i = 1..nMsgs-1
-//            check = (i + sum(payload symbol values)) % N
+// NO TWO ADJACENT CHARACTERS IN A MESSAGE ARE EVER EQUAL. Minr chat
+// dropped one character out of a run of eight identical ones in protocol
+// v2, so this is load-bearing, not cosmetic. Three things secure it:
+//   - every repeated symbol becomes a run code, and consecutive run codes
+//     are forced to differ, so payloads never repeat a character;
+//   - counts that could collide with a neighbouring field (the message
+//     index, nMsgs, K) are written from the TOP of the alphabet as
+//     A[N-1-v], far above any symbol value;
+//   - the checksum is taken mod N-1 and then written with the value of the
+//     preceding character skipped over, so it can never equal it.
+//
+// Messages (each <= MSG_LEN characters), with C = N - 1:
+//   header : "RYMH3" + A[N-1-nMsgs] + A[P] + A[N-1-K] + A[palette[0..K-1]]
+//            + skip(A, check),  check = (P + nMsgs + K + sum(palette)) % C
+//   data i : A[N-1-i] + payload + skip(A, check),  i = 1..nMsgs-1
+//            check = (i + sum(payload symbol values)) % C
+// skip(A, v) writes v as A[v] when v < prev and A[v+1] otherwise, where
+// prev is the value of the character just before it.
 // palette[] entries are master colour indices (see PALETTE).
 
 const MSG_LEN = 250;          // Minecraft chat allows 256; leave headroom
-const MAGIC = "RYMH2";
-const MAX_RUN = 999;
+const MAGIC = "RYMH3";
+// A run code repeats a symbol, and a P=2 symbol is two pixels, so one code
+// can ask emitPixels for 2 * MAX_REPS pixels. MSC lists cap at 1000.
+const MAX_REPS = 499;
 const ALPHABET_RANGES = [[0x3400, 0x4DBF], [0x4E00, 0x9FFF]];
 
 const ALPHA = (() => {
@@ -470,6 +488,16 @@ const ALPHA = (() => {
     }
     return parts.join("");
 })();
+
+// The checksum, written so it can never equal the character before it:
+// values 0..N-2 map onto the N-1 alphabet positions other than `prev`.
+function skipChar(prev, check) {
+    return ALPHA[check < prev ? check : check + 1];
+}
+
+function unskip(prev, charVal) {
+    return charVal < prev ? charVal : charVal - 1;
+}
 
 // Column-major master indices from a row-major image.
 function toColumnMajor(masterIdx) {
@@ -496,48 +524,49 @@ function encodeMap(masterIdx) {
 
     const P = K * K + 64 <= N ? 2 : 1;
     const base = K ** P;
-    const runCodes = Math.min(N - base, MAX_RUN - 1);
-    if (runCodes < 1) throw new Error(`Palette of ${K} colours does not fit the alphabet`);
-    const maxRun = runCodes + 1;
+    const maxReps = Math.min(N - base, MAX_REPS);
+    if (maxReps < 2) throw new Error(`Palette of ${K} colours does not fit the alphabet`);
+
+    // PIXELS is even, so P=2 always divides the stream into whole pairs.
+    const nSym = P === 2 ? px.length / 2 : px.length;
+    const symAt = j => (P === 2 ? px[2 * j] * K + px[2 * j + 1] : px[j]);
 
     const symbols = [];
-    let i = 0;
-    let last = -1;
-    while (i < px.length) {
-        if (P === 2) {
-            // Runs can leave an odd number of pixels; a lone final pixel is
-            // paired with itself and the decoder drops the overflow.
-            const second = i + 1 < px.length ? px[i + 1] : px[i];
-            symbols.push(px[i] * K + second);
-            last = second;
-            i += 2;
-        } else {
-            symbols.push(px[i]);
-            last = px[i];
-            i += 1;
-        }
-        while (i < px.length && px[i] === last) {
-            let len = 0;
-            while (i + len < px.length && px[i + len] === last && len < maxRun) len++;
-            if (len < 2) break;
-            symbols.push(base + len - 2);
-            i += len;
+    let j = 0;
+    while (j < nSym) {
+        const s = symAt(j);
+        symbols.push(s);
+        j++;
+        let reps = 0;
+        while (j < nSym && symAt(j) === s) { reps++; j++; }
+        // Split the repeat count across run codes, never emitting the same
+        // code twice in a row.
+        let prevTake = -1;
+        while (reps > 0) {
+            let take = Math.min(reps, maxReps);
+            if (take === prevTake) take = take > 1 ? take - 1 : 2;
+            symbols.push(base + take - 1);
+            reps -= take;
+            prevTake = take;
         }
     }
 
     const payloadLen = MSG_LEN - 2;
     const nMsgs = 1 + Math.ceil(symbols.length / payloadLen);
-    if (nMsgs > N - 1) throw new Error("Too many messages for alphabet");
+    // Counts written from the top of the alphabet must stay clear of every
+    // symbol value so a count can never equal its neighbour.
+    if (N - 1 - Math.max(nMsgs, K) <= base + maxReps) throw new Error("Too many messages for alphabet");
 
     const messages = [];
-    const headerBody = [P, nMsgs, K, ...palette];
-    const headerCheck = headerBody.reduce((a, b) => a + b, 0) % N;
-    messages.push(MAGIC + headerBody.map(v => ALPHA[v]).join("") + ALPHA[headerCheck]);
+    const headerVals = [N - 1 - nMsgs, P, N - 1 - K, ...palette];
+    const headerCheck = (P + nMsgs + K + palette.reduce((a, b) => a + b, 0)) % (N - 1);
+    messages.push(MAGIC + headerVals.map(v => ALPHA[v]).join("") + skipChar(headerVals[headerVals.length - 1], headerCheck));
 
     for (let m = 1; m < nMsgs; m++) {
         const chunk = symbols.slice((m - 1) * payloadLen, m * payloadLen);
-        const check = (m + chunk.reduce((a, b) => a + b, 0)) % N;
-        messages.push(ALPHA[m] + chunk.map(v => ALPHA[v]).join("") + ALPHA[check]);
+        const check = (m + chunk.reduce((a, b) => a + b, 0)) % (N - 1);
+        const body = [N - 1 - m, ...chunk];
+        messages.push(body.map(v => ALPHA[v]).join("") + skipChar(body[body.length - 1], check));
     }
     for (const msg of messages) {
         if (msg.length > MSG_LEN) throw new Error("Message exceeds chat limit");
@@ -557,45 +586,49 @@ function decodeMessages(messages) {
         return v;
     };
     let pos = MAGIC.length;
+    const nMsgs = N - 1 - val(header[pos++]);
     const P = val(header[pos++]);
-    const nMsgs = val(header[pos++]);
-    const K = val(header[pos++]);
+    const K = N - 1 - val(header[pos++]);
+    if (P < 1 || P > 2 || nMsgs < 2 || K < 1) throw new Error("Header fields");
     const palette = [];
     for (let j = 0; j < K; j++) palette.push(val(header[pos++]));
-    const headerCheck = val(header[pos++]);
-    if (headerCheck !== (P + nMsgs + K + palette.reduce((a, b) => a + b, 0)) % N) throw new Error("Header checksum");
-    if (pos !== header.length) throw new Error("Header length");
+    if (pos !== header.length - 1) throw new Error("Header length");
+    const headerCheck = unskip(val(header[pos - 1]), val(header[pos]));
+    if (headerCheck !== (P + nMsgs + K + palette.reduce((a, b) => a + b, 0)) % (N - 1)) throw new Error("Header checksum");
     if (messages.length !== nMsgs) throw new Error("Message count");
 
     const base = K ** P;
     const stream = new Uint8Array(PIXELS);
     let p = 0;
-    let last = 0;
+    let lastSym = 0;
     const emit = c => {
         // Like emitPixels in MSC: pixels past the end are dropped.
         if (p < PIXELS) stream[p++] = palette[c];
-        last = c;
+    };
+    const emitSym = s => {
+        if (P === 2) {
+            emit(Math.floor(s / K));
+            emit(s % K);
+        } else {
+            emit(s);
+        }
     };
     for (let m = 1; m < nMsgs; m++) {
         const msg = messages[m];
-        if (val(msg[0]) !== m) throw new Error(`Message ${m} index mismatch`);
+        if (N - 1 - val(msg[0]) !== m) throw new Error(`Message ${m} index mismatch`);
         let sum = m;
         for (let i = 1; i < msg.length - 1; i++) {
             const s = val(msg[i]);
             sum += s;
             if (s < base) {
-                if (P === 2) {
-                    emit(Math.floor(s / K));
-                    emit(s % K);
-                } else {
-                    emit(s);
-                }
+                emitSym(s);
+                lastSym = s;
             } else {
-                const n = s - base + 2;
-                for (let r = 0; r < n; r++) emit(last);
+                const reps = s - base + 1;
+                for (let r = 0; r < reps; r++) emitSym(lastSym);
             }
         }
-        if (val(msg[msg.length - 1]) !== sum % N) throw new Error(`Message ${m} checksum`);
+        if (unskip(val(msg[msg.length - 2]), val(msg[msg.length - 1])) !== sum % (N - 1)) throw new Error(`Message ${m} checksum`);
     }
     if (p !== PIXELS) throw new Error(`Decoded ${p} pixels`);
     return toRowMajor(stream);
@@ -778,6 +811,68 @@ function render() {
     $("output").style.display = "block";
 }
 
+// Paste a message back in to find out whether it survived the trip to
+// Minecraft. Reports length, foreign characters, index and checksum, and
+// diffs against the generated message when one matches.
+function verifyMessage() {
+    const raw = $("verify-input").value.trim();
+    const out = $("verify-result");
+    const say = (cls, text) => { out.className = cls; out.textContent = text; };
+    if (!raw) {
+        say("muted", "Paste a message above first.");
+        return;
+    }
+    const N = ALPHA.length;
+    const chars = Array.from(raw);
+    const foreign = chars.map((c, i) => [i, c]).filter(([, c]) => ALPHA.indexOf(c) < 0 && !MAGIC.includes(c));
+    const isHeader = raw.startsWith(MAGIC);
+
+    // Compare against the generated set when we can identify the message.
+    let mine = null;
+    if (currentMessages.length) {
+        if (isHeader) {
+            mine = currentMessages[0];
+        } else {
+            const idx = N - 1 - ALPHA.indexOf(chars[0]);
+            if (idx > 0 && idx < currentMessages.length) mine = currentMessages[idx];
+        }
+    }
+
+    if (mine && mine === raw) {
+        say("ok-text", `Intact. ${chars.length} characters, matches the message on this page exactly.`);
+        return;
+    }
+    if (mine) {
+        const theirs = Array.from(mine);
+        let k = 0;
+        while (k < theirs.length && k < chars.length && theirs[k] === chars[k]) k++;
+        const lenNote = chars.length === theirs.length
+            ? `same length (${chars.length})`
+            : `length ${chars.length}, should be ${theirs.length} (${theirs.length - chars.length} character${Math.abs(theirs.length - chars.length) === 1 ? "" : "s"} lost)`;
+        const dropped = theirs[k] === undefined ? "" : ` First difference at position ${k + 1}: expected ${theirs[k]} (U+${theirs[k].codePointAt(0).toString(16).toUpperCase()}), got ${chars[k] === undefined ? "end of message" : chars[k] + " (U+" + chars[k].codePointAt(0).toString(16).toUpperCase() + ")"}.`;
+        say("bad-text", `Damaged: ${lenNote}.${dropped}`);
+        return;
+    }
+
+    // No matching generated message; fall back to self-consistency checks.
+    if (foreign.length) {
+        say("bad-text", `Damaged: ${foreign.length} character(s) are not part of the alphabet, first at position ${foreign[0][0] + 1}.`);
+        return;
+    }
+    const body = isHeader ? chars.slice(MAGIC.length) : chars;
+    const vals = body.map(c => ALPHA.indexOf(c));
+    const check = unskip(vals[vals.length - 2], vals[vals.length - 1]);
+    const payload = vals.slice(isHeader ? 0 : 1, vals.length - 1);
+    const seed = isHeader ? 0 : N - 1 - vals[0];
+    const expect = (seed + payload.reduce((a, b) => a + b, 0)) % (N - 1);
+    if (check === expect) {
+        say("ok-text", `Checksum is correct (${chars.length} characters). Generate the image again on this page to compare character by character.`);
+    } else {
+        const missing = (check - expect + N - 1) % (N - 1);
+        say("bad-text", `Damaged: checksum is off by ${missing}, which is what one lost character of value ${missing} would do (${ALPHA[missing]}).`);
+    }
+}
+
 function scheduleRender() {
     clearTimeout(renderTimer);
     renderTimer = setTimeout(render, 80);
@@ -861,7 +956,7 @@ if (typeof document !== "undefined") {
 // Node export for the round-trip tests (ignored in the browser).
 if (typeof module !== "undefined" && module.exports) {
     module.exports = {
-        BLOCK_NAMES, MASTER_COUNT, masterRGB, ALPHA, ALPHABET_RANGES, MSG_LEN, MAGIC, MAX_RUN, TRANSPARENT,
+        BLOCK_NAMES, MASTER_COUNT, masterRGB, ALPHA, ALPHABET_RANGES, MSG_LEN, MAGIC, MAX_REPS, TRANSPARENT, skipChar, unskip,
         DITHERS, quantise, encodeMap, decodeMessages, classicHeights, valleyHeights, valleyHeightsReference, mapHeights,
         toneOf, blockOf, masterOf
     };

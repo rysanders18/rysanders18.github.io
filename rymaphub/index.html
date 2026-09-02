@@ -106,6 +106,19 @@
         </div>
       </div>
 
+      <h2>Check a message</h2>
+      <div class="panel">
+        <p class="muted" style="margin-top: 0">
+          If the script in game says a message was damaged, paste that message
+          back here and this will tell you what happened to it.
+        </p>
+        <textarea id="verify-input" rows="3" placeholder="Paste a message"></textarea>
+        <div class="row" style="margin-top: 0.6rem">
+          <button onclick="verifyMessage()">Check</button>
+        </div>
+        <p id="verify-result" class="muted"></p>
+      </div>
+
       <h2>How to use it</h2>
       <ol class="steps">
         <li>Choose an image above and adjust it until the preview looks right.</li>

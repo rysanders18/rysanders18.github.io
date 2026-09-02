@@ -38,6 +38,18 @@ function flatLogo() {
     return px;
 }
 
+// Solid and near-solid images: a run of 8192 identical symbols forces many
+// consecutive run codes, which must still never repeat a character.
+function solid(colour, stripeEvery) {
+    const px = new Uint8ClampedArray(PIXELS * 4);
+    for (let z = 0; z < SIZE; z++) for (let x = 0; x < SIZE; x++) {
+        const i = (z * SIZE + x) * 4;
+        const c = stripeEvery && z % stripeEvery === 0 ? [0, 0, 0] : colour;
+        px[i] = c[0]; px[i + 1] = c[1]; px[i + 2] = c[2]; px[i + 3] = 255;
+    }
+    return px;
+}
+
 // Sign constraints every height assignment must satisfy.
 function heightsValid(column, h) {
     if (h.length !== SIZE + 1) return false;
@@ -86,6 +98,9 @@ const cases = [
     ["photo, flat, Floyd-Steinberg", photoLike(1), { staircase: "off", dither: "FloydSteinberg" }],
     ["logo, valley, Atkinson", flatLogo(), { staircase: "valley", dither: "Atkinson", maxHeight: 32 }],
     ["logo, flat, none", flatLogo(), { staircase: "off", dither: "None" }],
+    ["solid white, valley, none", solid([255, 255, 255], 0), { staircase: "valley", dither: "None", maxHeight: 32 }],
+    ["solid white, flat, none", solid([255, 255, 255], 0), { staircase: "off", dither: "None" }],
+    ["striped, flat, none", solid([255, 255, 255], 17), { staircase: "off", dither: "None" }],
 ];
 for (const [name, px, opts] of cases) {
     const idx = M.quantise(px, opts);
@@ -104,6 +119,14 @@ for (const [name, px, opts] of cases) {
         check(m.length <= 256, `${name} msg ${i} length ${m.length}`);
         const body = i === 0 ? m.slice(5) : m;
         for (const ch of body) check(M.ALPHA.includes(ch), `${name} msg ${i} char ${JSON.stringify(ch)} not in alphabet`);
+    }
+    // Protocol v3: no two adjacent characters may ever be equal, because
+    // Minr chat dropped one character from a run of eight in v2.
+    for (const [i, m] of r.messages.entries()) {
+        const body = i === 0 ? m.slice(M.MAGIC.length) : m;
+        for (let c = 1; c < body.length; c++) {
+            check(body[c] !== body[c - 1], `${name} msg ${i}: repeated character at ${c}`);
+        }
     }
     const back = M.decodeMessages(r.messages);
     check(back.length === idx.length && back.every((v, i) => v === idx[i]), `${name} round trip mismatch`);
