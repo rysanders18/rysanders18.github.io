@@ -113,7 +113,7 @@ for (const [name, px, opts] of cases) {
             check(M.toneOf(m) === (northT ? 2 : 1), `${name}: tone rule broken at ${x},${z}`);
         }
     }
-    const r = M.encodeMap(idx);
+    const r = M.encodeMap(idx, 250);
     const maxLen = Math.max(...r.messages.map(m => m.length));
     for (const [i, m] of r.messages.entries()) {
         check(m.length <= 256, `${name} msg ${i} length ${m.length}`);
@@ -139,13 +139,13 @@ for (const [name, px, opts] of cases) {
     }
     check(bad === 0, `${name}: ${bad} columns with invalid heights`);
     if (opts.maxHeight !== undefined) check(maxHeight <= opts.maxHeight, `${name}: max height ${maxHeight} exceeds limit ${opts.maxHeight}`);
-    console.log(`${name.padEnd(32)} ${String(r.messages.length).padStart(3)} msgs, ${String(r.palette.length).padStart(3)} colours, ` +
+    console.log(`${name.padEnd(32)} ${String(r.messages.length).padStart(3)} msgs, ${String(r.colours).padStart(3)} colours, ` +
         `P=${r.pixelsPerSymbol}, ${r.symbolCount} symbols, max len ${maxLen}, max height ${maxHeight}`);
 }
 
 // 3. Corruption must be detected.
 {
-    const r = M.encodeMap(M.quantise(photoLike(2), { staircase: "valley", dither: "FloydSteinberg" }));
+    const r = M.encodeMap(M.quantise(photoLike(2), { staircase: "valley", dither: "FloydSteinberg" }), 250);
     const trunc = r.messages.slice(); trunc[5] = trunc[5].slice(0, -3);
     let caught = false; try { M.decodeMessages(trunc); } catch (e) { caught = true; }
     check(caught, "truncated message not detected");
@@ -160,6 +160,8 @@ for (const [name, px, opts] of cases) {
 // 4. The MSC namespace file must agree with script.js.
 if (process.env.NMS_DIR) {
     const nms = fs.readFileSync(path.join(process.env.NMS_DIR, "rymaphub.nms"), "utf8");
+    const colours = parseInt(nms.match(/Int colours = (\d+)/)[1], 10);
+    check(colours === M.COLOURS, `colours differs: .nms ${colours}, script.js ${M.COLOURS}`);
     const u = nms.match(/String alphaU = "(.*)"/)[1];
     check(u === M.ALPHA, `alphaU differs between .nms (${u.length}) and script.js (${M.ALPHA.length})`);
     const blocks = nms.match(/String\[\] blocks = String\[(.*)\]/)[1].split(", ").map(s => s.slice(1, -1));
@@ -167,6 +169,26 @@ if (process.env.NMS_DIR) {
     console.log("rymaphub.nms alphabet and block list match");
 } else {
     console.log("NMS_DIR not set; skipping .nms consistency check");
+}
+
+// 5. Every message length setting must round-trip and keep the
+// no-adjacent-duplicates property.
+{
+    const idx = M.quantise(photoLike(3), { staircase: "valley", dither: "FloydSteinberg", maxHeight: 32 });
+    for (const len of [60, 80, 100, 150, 200, 250]) {
+        const r = M.encodeMap(idx, len);
+        const longest = Math.max(...r.messages.map(m => m.length));
+        check(longest <= len, `msgLen ${len}: longest message is ${longest}`);
+        for (const [i, m] of r.messages.entries()) {
+            const body = i === 0 ? m.slice(M.MAGIC.length) : m;
+            for (let c = 1; c < body.length; c++) {
+                check(body[c] !== body[c - 1], `msgLen ${len} msg ${i}: repeated character at ${c}`);
+            }
+        }
+        const back = M.decodeMessages(r.messages);
+        check(back.every((v, k) => v === idx[k]), `msgLen ${len}: round trip mismatch`);
+        console.log(`msgLen ${String(len).padStart(3)}: ${String(r.messages.length).padStart(4)} messages, longest ${longest}`);
+    }
 }
 
 console.log(failures === 0 ? "ALL PASS" : `${failures} FAILURES`);

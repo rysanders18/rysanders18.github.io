@@ -445,7 +445,10 @@ function mapHeights(masterIdx, staircase) {
 //
 // Stream: pixels in column-major order (x = 0..127, then z = 0..127 within
 // each column, so the decoder can finish one column's heights at a time).
-// Let K = number of distinct colours used, P = pixels per plain symbol
+// A pixel is a master colour index, 0..156, and K is that full count rather
+// than a per-image palette: 157^2 already fits the alphabet, so packing two
+// pixels per character needs no palette and the header stays 8 characters
+// no matter how many colours the image uses. P = pixels per plain symbol
 // (2 when K^2 fits the alphabet, else 1), base = K^P, N = alphabet size.
 //   symbol s <  base : P pixels. P=1: s. P=2: floor(s/K) then s%K.
 //   symbol s >= base : run code - repeat the previous PLAIN SYMBOL
@@ -466,16 +469,24 @@ function mapHeights(masterIdx, staircase) {
 //     preceding character skipped over, so it can never equal it.
 //
 // Messages (each <= MSG_LEN characters), with C = N - 1:
-//   header : "RYMH3" + A[N-1-nMsgs] + A[P] + A[N-1-K] + A[palette[0..K-1]]
-//            + skip(A, check),  check = (P + nMsgs + K + sum(palette)) % C
+//   header : "RYMH4" + A[N-1-nMsgs] + A[P] + skip(A, check)
+//            check = (P + nMsgs) % C
 //   data i : A[N-1-i] + payload + skip(A, check),  i = 1..nMsgs-1
 //            check = (i + sum(payload symbol values)) % C
 // skip(A, v) writes v as A[v] when v < prev and A[v+1] otherwise, where
 // prev is the value of the character just before it.
-// palette[] entries are master colour indices (see PALETTE).
 
-const MSG_LEN = 250;          // Minecraft chat allows 256; leave headroom
-const MAGIC = "RYMH3";
+// Characters per message. Minecraft's own chat field holds 256 characters,
+// but Minr rejected 250-character messages while accepting a 36-character
+// header, so the real ceiling is lower and is set by the server. It is a
+// page control rather than a constant: the in-game script reports how many
+// characters it actually received, so the limit can be found by trying one
+// message. Nothing in the decoder depends on this value.
+const DEFAULT_MSG_LEN = 80;
+const MAGIC = "RYMH4";
+// Every pixel is a master colour index, so the symbol radix is fixed and no
+// per-image palette has to be transmitted.
+const COLOURS = MASTER_COUNT;
 // A run code repeats a symbol, and a P=2 symbol is two pixels, so one code
 // can ask emitPixels for 2 * MAX_REPS pixels. MSC lists cap at 1000.
 const MAX_REPS = 499;
@@ -513,15 +524,12 @@ function toRowMajor(columnMajor) {
 }
 
 // masterIdx: Uint8Array of PIXELS master indices, row-major.
-function encodeMap(masterIdx) {
+function encodeMap(masterIdx, msgLen) {
+    const MSG_LEN = msgLen || DEFAULT_MSG_LEN;
     const N = ALPHA.length;
-    const stream = toColumnMajor(masterIdx);
+    const px = toColumnMajor(masterIdx);
 
-    const palette = [...new Set(stream)].sort((a, b) => a - b);
-    const K = palette.length;
-    const local = new Map(palette.map((m, i) => [m, i]));
-    const px = Array.from(stream, m => local.get(m));
-
+    const K = COLOURS;
     const P = K * K + 64 <= N ? 2 : 1;
     const base = K ** P;
     const maxReps = Math.min(N - base, MAX_REPS);
@@ -553,13 +561,13 @@ function encodeMap(masterIdx) {
 
     const payloadLen = MSG_LEN - 2;
     const nMsgs = 1 + Math.ceil(symbols.length / payloadLen);
-    // Counts written from the top of the alphabet must stay clear of every
-    // symbol value so a count can never equal its neighbour.
-    if (N - 1 - Math.max(nMsgs, K) <= base + maxReps) throw new Error("Too many messages for alphabet");
+    // The message index is written from the top of the alphabet and must
+    // stay clear of every symbol value, so it can never equal its neighbour.
+    if (N - 1 - nMsgs <= base + maxReps) throw new Error("Too many messages for alphabet");
 
     const messages = [];
-    const headerVals = [N - 1 - nMsgs, P, N - 1 - K, ...palette];
-    const headerCheck = (P + nMsgs + K + palette.reduce((a, b) => a + b, 0)) % (N - 1);
+    const headerVals = [N - 1 - nMsgs, P];
+    const headerCheck = (P + nMsgs) % (N - 1);
     messages.push(MAGIC + headerVals.map(v => ALPHA[v]).join("") + skipChar(headerVals[headerVals.length - 1], headerCheck));
 
     for (let m = 1; m < nMsgs; m++) {
@@ -571,7 +579,7 @@ function encodeMap(masterIdx) {
     for (const msg of messages) {
         if (msg.length > MSG_LEN) throw new Error("Message exceeds chat limit");
     }
-    return { messages, palette, pixelsPerSymbol: P, symbolCount: symbols.length };
+    return { messages, colours: new Set(px).size, pixelsPerSymbol: P, symbolCount: symbols.length };
 }
 
 // Reference decoder: mirrors the MSC decoder so the round trip can be tested
@@ -588,13 +596,11 @@ function decodeMessages(messages) {
     let pos = MAGIC.length;
     const nMsgs = N - 1 - val(header[pos++]);
     const P = val(header[pos++]);
-    const K = N - 1 - val(header[pos++]);
-    if (P < 1 || P > 2 || nMsgs < 2 || K < 1) throw new Error("Header fields");
-    const palette = [];
-    for (let j = 0; j < K; j++) palette.push(val(header[pos++]));
-    if (pos !== header.length - 1) throw new Error("Header length");
+    const K = COLOURS;
+    if (P < 1 || P > 2 || nMsgs < 2) throw new Error("Header fields");
+    if (header.length !== pos + 1) throw new Error("Header length");
     const headerCheck = unskip(val(header[pos - 1]), val(header[pos]));
-    if (headerCheck !== (P + nMsgs + K + palette.reduce((a, b) => a + b, 0)) % (N - 1)) throw new Error("Header checksum");
+    if (headerCheck !== (P + nMsgs) % (N - 1)) throw new Error("Header checksum");
     if (messages.length !== nMsgs) throw new Error("Message count");
 
     const base = K ** P;
@@ -603,7 +609,7 @@ function decodeMessages(messages) {
     let lastSym = 0;
     const emit = c => {
         // Like emitPixels in MSC: pixels past the end are dropped.
-        if (p < PIXELS) stream[p++] = palette[c];
+        if (p < PIXELS) stream[p++] = c;
     };
     const emitSym = s => {
         if (P === 2) {
@@ -658,7 +664,8 @@ function readOptions() {
         saturation: parseInt($("saturationSlider").value, 10),
         staircase: $("staircaseSelect").value,
         dither: $("ditherSelect").value,
-        maxHeight: parseInt($("maxHeightSlider").value, 10)
+        maxHeight: parseInt($("maxHeightSlider").value, 10),
+        msgLen: parseInt($("msgLenSelect").value, 10)
     };
 }
 
@@ -788,7 +795,7 @@ function render() {
 
     let result;
     try {
-        result = encodeMap(masterIdx);
+        result = encodeMap(masterIdx, o.msgLen);
     } catch (error) {
         $("stats-text").textContent = `Could not encode image: ${error.message}`;
         return;
@@ -806,8 +813,9 @@ function render() {
 
     showMessages(result);
     const heightNote = o.staircase === "valley" ? `, tallest column ${maxHeight} block${maxHeight === 1 ? "" : "s"} above the floor` : "";
+    const longest = Math.max(...result.messages.map(m => m.length));
     $("stats-text").textContent =
-        `${result.messages.length} messages, ${result.palette.length} colours, ${result.pixelsPerSymbol} pixel${result.pixelsPerSymbol === 1 ? "" : "s"} per character${heightNote}.`;
+        `${result.messages.length} messages, longest ${longest} characters, ${result.colours} colours, ${result.pixelsPerSymbol} pixel${result.pixelsPerSymbol === 1 ? "" : "s"} per character${heightNote}.`;
     $("output").style.display = "block";
 }
 
@@ -946,6 +954,7 @@ if (typeof document !== "undefined") {
         for (const id of ["zoomSlider", "xSlider", "ySlider", "brightnessSlider", "contrastSlider", "saturationSlider", "maxHeightSlider"]) {
             $(id).addEventListener("input", () => { updateSliderLabels(); scheduleRender(); });
         }
+        $("msgLenSelect").addEventListener("change", scheduleRender);
         $("ditherSelect").addEventListener("change", scheduleRender);
         $("staircaseSelect").addEventListener("change", () => { updateCropControls(); scheduleRender(); });
         updateCropControls();
@@ -956,7 +965,7 @@ if (typeof document !== "undefined") {
 // Node export for the round-trip tests (ignored in the browser).
 if (typeof module !== "undefined" && module.exports) {
     module.exports = {
-        BLOCK_NAMES, MASTER_COUNT, masterRGB, ALPHA, ALPHABET_RANGES, MSG_LEN, MAGIC, MAX_REPS, TRANSPARENT, skipChar, unskip,
+        BLOCK_NAMES, MASTER_COUNT, COLOURS, masterRGB, ALPHA, ALPHABET_RANGES, DEFAULT_MSG_LEN, MAGIC, MAX_REPS, TRANSPARENT, skipChar, unskip,
         DITHERS, quantise, encodeMap, decodeMessages, classicHeights, valleyHeights, valleyHeightsReference, mapHeights,
         toneOf, blockOf, masterOf
     };
