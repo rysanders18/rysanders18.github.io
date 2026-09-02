@@ -343,6 +343,17 @@ ol.steps li {
   transition: width 0.15s ease;
 }
 
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  padding: 0.1em 0.4em;
+  border: 1px solid var(--line);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: var(--panel);
+  color: var(--text);
+}
+
 code {
   font-family: var(--mono);
   font-size: 0.92em;

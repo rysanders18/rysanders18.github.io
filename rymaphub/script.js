@@ -833,6 +833,28 @@ function copyNext() {
     copyMessage(nextToCopy);
 }
 
+// Pasting a run means alt-tabbing to Minecraft and back dozens of times, so
+// the next message is reachable without finding the button: ' or ctrl+C.
+// ctrl+C still copies a selection when there is one, since taking that away
+// would make the page's own text impossible to copy.
+function isTyping(el) {
+    if (!el) return false;
+    if (el.isContentEditable) return true;
+    const tag = el.tagName;
+    return tag === "TEXTAREA" || (tag === "INPUT" && !/^(range|checkbox|radio|file|button|submit)$/i.test(el.type));
+}
+
+function onShortcut(e) {
+    if (e.repeat || e.altKey || isTyping(e.target)) return;
+    if (!currentMessages.length || nextToCopy >= currentMessages.length) return;
+    const quote = e.key === "'" && !e.ctrlKey && !e.metaKey && !e.shiftKey;
+    const copy = (e.key === "c" || e.key === "C") && (e.ctrlKey || e.metaKey) &&
+        String(window.getSelection() || "") === "";
+    if (!quote && !copy) return;
+    e.preventDefault();
+    copyNext();
+}
+
 function resetCopying() {
     clearFlash();
     nextToCopy = 0;
@@ -969,6 +991,7 @@ if (typeof document !== "undefined") {
         for (const id of ["zoomSlider", "xSlider", "ySlider", "brightnessSlider", "contrastSlider", "saturationSlider", "maxHeightSlider"]) {
             $(id).addEventListener("input", () => { updateSliderLabels(); scheduleRender(); });
         }
+        document.addEventListener("keydown", onShortcut);
         $("msgLenSelect").addEventListener("change", scheduleRender);
         $("ditherSelect").addEventListener("change", scheduleRender);
         $("staircaseSelect").addEventListener("change", () => { updateCropControls(); scheduleRender(); });

@@ -120,6 +120,7 @@
             <button id="copy-next-btn" onclick="copyNext()">Copy message 1</button>
             <button class="secondary" onclick="resetCopying()">Start over</button>
             <span id="msg-progress" class="muted"></span>
+            <span class="muted">or press <kbd>'</kbd> / <kbd>Ctrl</kbd>+<kbd>C</kbd></span>
           </div>
           <div class="progress"><div id="copy-bar"></div></div>
           <ul id="msg-list"></ul>
@@ -136,6 +137,9 @@
         <li>
           Click <em>Copy message 1</em>, paste it into chat, and press Enter.
           The button advances to the next message each time you click it.
+          You never have to come back to it, though: with the page open in
+          another window, <kbd>'</kbd> or <kbd>Ctrl</kbd>+<kbd>C</kbd> copies
+          the next one, so the whole run is alt-tab, paste, alt-tab, key.
         </li>
         <li>
           Keep going until the last message. Each one that lands plays a note
