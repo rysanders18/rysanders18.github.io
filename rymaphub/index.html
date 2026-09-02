@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RYmaphub</title>
     <link rel="stylesheet" href="/styles.css" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%236d4ce6'/%3E%3Crect x='3' y='3' width='4.5' height='4.5' fill='%23f7f7f5'/%3E%3Crect x='8.5' y='3' width='4.5' height='4.5' fill='%23e5c07b'/%3E%3Crect x='3' y='8.5' width='4.5' height='4.5' fill='%2356b6c2'/%3E%3Crect x='8.5' y='8.5' width='4.5' height='4.5' fill='%2398c379'/%3E%3C/svg%3E" />
     <script src="script.js" defer></script>
   </head>
   <body>
@@ -119,21 +120,9 @@
             <button class="secondary" onclick="resetCopying()">Start over</button>
             <span id="msg-progress" class="muted"></span>
           </div>
+          <div class="progress"><div id="copy-bar"></div></div>
           <ul id="msg-list"></ul>
         </div>
-      </div>
-
-      <h2>Check a message</h2>
-      <div class="panel">
-        <p class="muted" style="margin-top: 0">
-          If the script in game says a message was damaged, paste that message
-          back here and this will tell you what happened to it.
-        </p>
-        <textarea id="verify-input" rows="3" placeholder="Paste a message"></textarea>
-        <div class="row" style="margin-top: 0.6rem">
-          <button onclick="verifyMessage()">Check</button>
-        </div>
-        <p id="verify-result" class="muted"></p>
       </div>
 
       <h2>How to use it</h2>
@@ -148,9 +137,10 @@
           The button advances to the next message each time you click it.
         </li>
         <li>
-          Keep going until the last message. The script checks every message
-          as it arrives and tells you if one was mangled, so just paste that
-          one again. Type <code>cancel</code> to abort.
+          Keep going until the last message. Each one that lands plays a note
+          a little higher than the last, so you can hear the run finish. If a
+          message arrives mangled the script says so and waits for you to
+          paste it again. Type <code>cancel</code> to stop.
         </li>
         <li>Once every message is in, the map builds and lands in your hand.</li>
       </ol>

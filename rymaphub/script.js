@@ -715,15 +715,17 @@ function renderPreview(masterIdx) {
 function updateCopyButton() {
     const btn = $("copy-next-btn");
     const progress = $("msg-progress");
+    const bar = $("copy-bar");
     const total = currentMessages.length;
+    if (bar) bar.style.width = total ? `${(nextToCopy / total) * 100}%` : "0";
     if (nextToCopy >= total) {
         btn.textContent = "All messages copied";
         btn.disabled = true;
-        progress.textContent = `${total} / ${total} copied`;
+        progress.textContent = `${total} of ${total} copied`;
     } else {
         btn.textContent = `Copy message ${nextToCopy + 1} of ${total}`;
         btn.disabled = false;
-        progress.textContent = `${nextToCopy} / ${total} copied`;
+        progress.textContent = `${nextToCopy} of ${total} copied`;
     }
 }
 
@@ -751,10 +753,16 @@ function copyText(text) {
 function copyMessage(index) {
     if (index < 0 || index >= currentMessages.length) return;
     copyText(currentMessages[index]);
+    let nextEl = null;
     document.querySelectorAll("#msg-list li").forEach((li, i) => {
         li.classList.toggle("done", i < index + 1);
-        li.classList.toggle("current", i === index + 1);
+        const isNext = i === index + 1;
+        li.classList.toggle("current", isNext);
+        if (isNext) nextEl = li;
     });
+    // Keep the message you are about to paste in view; the list runs to
+    // dozens of rows and scrolling it by hand every time is miserable.
+    if (nextEl) nextEl.scrollIntoView({ block: "nearest" });
     nextToCopy = index + 1;
     updateCopyButton();
 }
@@ -825,76 +833,6 @@ function render() {
     $("output").style.display = "block";
 }
 
-// Paste a message back in to find out whether it survived the trip to
-// Minecraft. Reports length, foreign characters, index and checksum, and
-// diffs against the generated message when one matches.
-function verifyMessage() {
-    const raw = $("verify-input").value.trim();
-    const out = $("verify-result");
-    const say = (cls, text) => { out.className = cls; out.textContent = text; };
-    if (!raw) {
-        say("muted", "Paste a message above first.");
-        return;
-    }
-    const N = ALPHA.length;
-    const chars = Array.from(raw);
-    const foreign = chars.map((c, i) => [i, c]).filter(([, c]) => ALPHA.indexOf(c) < 0 && !MAGIC.includes(c));
-    const isHeader = raw.startsWith(MAGIC);
-
-    // Compare against the generated set when we can identify the message.
-    let mine = null;
-    if (currentMessages.length) {
-        if (isHeader) {
-            mine = currentMessages[0];
-        } else {
-            const idx = N - 1 - ALPHA.indexOf(chars[0]);
-            if (idx > 0 && idx < currentMessages.length) mine = currentMessages[idx];
-        }
-    }
-
-    // The payload sum is what the in-game [diag] line prints, so quoting it
-    // here lets the two be compared directly.
-    const sumOf = cs => {
-        const body = cs[0] === MAGIC[0] && raw.startsWith(MAGIC) ? cs.slice(MAGIC.length) : cs;
-        let t = 0;
-        for (let i = 1; i < body.length - 1; i++) t += ALPHA.indexOf(body[i]);
-        return t;
-    };
-    if (mine && mine === raw) {
-        say("ok-text", `Intact. ${chars.length} characters, payload sum ${sumOf(chars)}, matches the message on this page exactly.`);
-        return;
-    }
-    if (mine) {
-        const theirs = Array.from(mine);
-        let k = 0;
-        while (k < theirs.length && k < chars.length && theirs[k] === chars[k]) k++;
-        const lenNote = chars.length === theirs.length
-            ? `same length (${chars.length})`
-            : `length ${chars.length}, should be ${theirs.length} (${theirs.length - chars.length} character${Math.abs(theirs.length - chars.length) === 1 ? "" : "s"} lost)`;
-        const dropped = theirs[k] === undefined ? "" : ` First difference at position ${k + 1}: expected ${theirs[k]} (U+${theirs[k].codePointAt(0).toString(16).toUpperCase()}), got ${chars[k] === undefined ? "end of message" : chars[k] + " (U+" + chars[k].codePointAt(0).toString(16).toUpperCase() + ")"}.`;
-        say("bad-text", `Damaged: ${lenNote}. Payload sum ${sumOf(chars)}, should be ${sumOf(theirs)}.${dropped}`);
-        return;
-    }
-
-    // No matching generated message; fall back to self-consistency checks.
-    if (foreign.length) {
-        say("bad-text", `Damaged: ${foreign.length} character(s) are not part of the alphabet, first at position ${foreign[0][0] + 1}.`);
-        return;
-    }
-    const body = isHeader ? chars.slice(MAGIC.length) : chars;
-    const vals = body.map(c => ALPHA.indexOf(c));
-    const check = unskip(vals[vals.length - 2], vals[vals.length - 1]);
-    const payload = vals.slice(isHeader ? 0 : 1, vals.length - 1);
-    const seed = isHeader ? 0 : N - 1 - vals[0];
-    const expect = (seed + payload.reduce((a, b) => a + b, 0)) % (N - 1);
-    if (check === expect) {
-        say("ok-text", `Checksum is correct (${chars.length} characters). Generate the image again on this page to compare character by character.`);
-    } else {
-        const missing = (check - expect + N - 1) % (N - 1);
-        say("bad-text", `Damaged: checksum is off by ${missing}, which is what one lost character of value ${missing} would do (${ALPHA[missing]}).`);
-    }
-}
-
 function scheduleRender() {
     clearTimeout(renderTimer);
     renderTimer = setTimeout(render, 80);
@@ -950,7 +888,7 @@ if (typeof document !== "undefined") {
             opt.textContent = d.label;
             ditherSelect.appendChild(opt);
         }
-        ditherSelect.value = "FloydSteinberg";
+        ditherSelect.value = "None";
         const staircaseSelect = $("staircaseSelect");
         for (const [key, s] of Object.entries(STAIRCASE)) {
             const opt = document.createElement("option");

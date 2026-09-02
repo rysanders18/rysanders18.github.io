@@ -297,30 +297,19 @@ ol.steps li {
   background: repeating-conic-gradient(var(--line) 0 25%, transparent 0 50%) 0 0 / 16px 16px;
 }
 
-textarea {
-  width: 100%;
-  font-family: var(--mono);
-  font-size: 13px;
-  padding: 0.5rem;
-  border-radius: 6px;
-  border: 1px solid var(--line);
-  background: var(--panel);
-  color: var(--text);
-  resize: vertical;
+.progress {
+  height: 6px;
+  margin-top: 0.9rem;
+  border-radius: 3px;
+  background: var(--line);
+  overflow: hidden;
 }
 
-.ok-text {
-  color: var(--ok);
-}
-
-.bad-text {
-  color: #c0392b;
-}
-
-@media (prefers-color-scheme: dark) {
-  .bad-text {
-    color: #ff8b7a;
-  }
+#copy-bar {
+  height: 100%;
+  width: 0;
+  background: var(--accent);
+  transition: width 0.15s ease;
 }
 
 code {
