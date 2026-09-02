@@ -447,7 +447,7 @@ function mapHeights(masterIdx, staircase) {
 // each column, so the decoder can finish one column's heights at a time).
 // A pixel is a master colour index, 0..156, and K is that full count rather
 // than a per-image palette: 157^2 already fits the alphabet, so packing two
-// pixels per character needs no palette and the header stays 7 characters
+// pixels per character needs no palette and the header costs 6 characters
 // no matter how many colours the image uses. P = pixels per plain symbol
 // (2 when K^2 fits the alphabet, else 1), base = K^P, N = alphabet size.
 //   symbol s <  base : P pixels. P=1: s. P=2: floor(s/K) then s%K.
@@ -469,10 +469,15 @@ function mapHeights(masterIdx, staircase) {
 //     preceding character skipped over, so it can never equal it.
 //
 // Messages (each <= MSG_LEN characters), with C = N - 1:
-//   header : "RYMH" + A[N-1-nMsgs] + A[P] + skip(A, check)
-//            check = (P + nMsgs) % C
-//   data i : A[N-1-i] + payload + skip(A, check),  i = 1..nMsgs-1
+//   msg 1  : "RYMH" + A[P] + A[N-1-nMsgs] + payload + skip(A, check)
+//            check = (P + nMsgs + sum(payload symbol values)) % C
+//   msg i+1: A[N-1-i] + payload + skip(A, check),  i = 1..nMsgs-1
 //            check = (i + sum(payload symbol values)) % C
+// The header rides in front of message 1's own payload rather than taking
+// a message to itself, so a run is one line shorter and a small image can
+// be a single message. nMsgs is the field next to the payload because its
+// value sits near the top of the alphabet, far above any symbol value, so
+// those two characters can never be equal.
 // skip(A, v) writes v as A[v] when v < prev and A[v+1] otherwise, where
 // prev is the value of the character just before it.
 
@@ -567,19 +572,23 @@ function encodeMap(masterIdx, msgLen) {
         }
     }
 
+    // Message 1 gives up MAGIC + two header fields + a checksum; the rest
+    // give up an index and a checksum.
+    const firstCap = MSG_LEN - MAGIC.length - 3;
     const payloadLen = MSG_LEN - 2;
-    const nMsgs = 1 + Math.ceil(symbols.length / payloadLen);
+    const nMsgs = 1 + Math.ceil(Math.max(0, symbols.length - firstCap) / payloadLen);
     // The message index is written from the top of the alphabet and must
     // stay clear of every symbol value, so it can never equal its neighbour.
     if (N - 1 - nMsgs <= base + maxReps) throw new Error("Too many messages for alphabet");
 
     const messages = [];
-    const headerVals = [N - 1 - nMsgs, P];
-    const headerCheck = (P + nMsgs) % (N - 1);
-    messages.push(MAGIC + headerVals.map(v => ALPHA[v]).join("") + skipChar(headerVals[headerVals.length - 1], headerCheck));
+    const firstChunk = symbols.slice(0, firstCap);
+    const firstVals = [P, N - 1 - nMsgs, ...firstChunk];
+    const firstCheck = (P + nMsgs + firstChunk.reduce((a, b) => a + b, 0)) % (N - 1);
+    messages.push(MAGIC + firstVals.map(v => ALPHA[v]).join("") + skipChar(firstVals[firstVals.length - 1], firstCheck));
 
     for (let m = 1; m < nMsgs; m++) {
-        const chunk = symbols.slice((m - 1) * payloadLen, m * payloadLen);
+        const chunk = symbols.slice(firstCap + (m - 1) * payloadLen, firstCap + m * payloadLen);
         const check = (m + chunk.reduce((a, b) => a + b, 0)) % (N - 1);
         const body = [N - 1 - m, ...chunk];
         messages.push(body.map(v => ALPHA[v]).join("") + skipChar(body[body.length - 1], check));
@@ -601,14 +610,10 @@ function decodeMessages(messages) {
         if (v < 0) throw new Error(`Bad character ${JSON.stringify(ch)}`);
         return v;
     };
-    let pos = MAGIC.length;
-    const nMsgs = N - 1 - val(header[pos++]);
-    const P = val(header[pos++]);
+    const P = val(header[MAGIC.length]);
+    const nMsgs = N - 1 - val(header[MAGIC.length + 1]);
     const K = COLOURS;
-    if (P < 1 || P > 2 || nMsgs < 2) throw new Error("Header fields");
-    if (header.length !== pos + 1) throw new Error("Header length");
-    const headerCheck = unskip(val(header[pos - 1]), val(header[pos]));
-    if (headerCheck !== (P + nMsgs) % (N - 1)) throw new Error("Header checksum");
+    if (P < 1 || P > 2 || nMsgs < 1) throw new Error("Header fields");
     if (messages.length !== nMsgs) throw new Error("Message count");
 
     const base = K ** P;
@@ -627,11 +632,20 @@ function decodeMessages(messages) {
             emit(s);
         }
     };
-    for (let m = 1; m < nMsgs; m++) {
+    for (let m = 0; m < nMsgs; m++) {
         const msg = messages[m];
-        if (N - 1 - val(msg[0]) !== m) throw new Error(`Message ${m} index mismatch`);
+        // Message 1's payload starts after the magic and the two header
+        // fields, and its checksum covers them; the rest start after the
+        // index character.
+        let start = 1;
         let sum = m;
-        for (let i = 1; i < msg.length - 1; i++) {
+        if (m === 0) {
+            start = MAGIC.length + 2;
+            sum = P + nMsgs;
+        } else if (N - 1 - val(msg[0]) !== m) {
+            throw new Error(`Message ${m} index mismatch`);
+        }
+        for (let i = start; i < msg.length - 1; i++) {
             const s = val(msg[i]);
             sum += s;
             if (s < base) {

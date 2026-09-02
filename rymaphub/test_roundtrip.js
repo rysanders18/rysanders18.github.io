@@ -117,7 +117,7 @@ for (const [name, px, opts] of cases) {
     const maxLen = Math.max(...r.messages.map(m => m.length));
     for (const [i, m] of r.messages.entries()) {
         check(m.length <= 256, `${name} msg ${i} length ${m.length}`);
-        const body = i === 0 ? m.slice(5) : m;
+        const body = i === 0 ? m.slice(M.MAGIC.length) : m;
         for (const ch of body) check(M.ALPHA.includes(ch), `${name} msg ${i} char ${JSON.stringify(ch)} not in alphabet`);
     }
     // Protocol v3: no two adjacent characters may ever be equal, because
@@ -152,7 +152,9 @@ for (const [name, px, opts] of cases) {
     const subst = r.messages.slice(); subst[2] = subst[2].slice(0, 20) + M.ALPHA[0] + subst[2].slice(21);
     caught = false; try { M.decodeMessages(subst); } catch (e) { caught = true; }
     check(caught, "substituted character not detected");
-    const hdr = r.messages.slice(); hdr[0] = hdr[0].slice(0, 7) + M.ALPHA[3] + hdr[0].slice(8);
+    const hdr = r.messages.slice();
+    const at = M.MAGIC.length + 3;
+    hdr[0] = hdr[0].slice(0, at) + M.ALPHA[(M.ALPHA.indexOf(hdr[0][at]) + 1) % M.ALPHA.length] + hdr[0].slice(at + 1);
     caught = false; try { M.decodeMessages(hdr); } catch (e) { caught = true; }
     check(caught, "header corruption not detected");
 }
