@@ -71,7 +71,7 @@
 
         <div id="height-controls" class="sliders">
           <label>Max height <span id="maxHeightValue"></span>
-            <input type="range" id="maxHeightSlider" min="1" max="100" step="1" value="32" /></label>
+            <input type="range" id="maxHeightSlider" min="1" max="128" step="1" value="32" /></label>
         </div>
 
         <div class="sliders">
@@ -90,7 +90,9 @@
         <p class="muted" style="margin: 0.8rem 0 0">
           Staircasing builds the map in 3D so every block gets three shades,
           tripling the palette. Valley mode keeps the build as low as possible.
-          Transparent pixels stay clear on the map.
+          Transparent pixels stay clear on the map. Max height caps how tall a
+          column may get: raising it buys a little accuracy on steep gradients,
+          but the hub needs that many blocks of clear air above its floor.
         </p>
         <p class="muted" style="margin: 0.6rem 0 0">
           Longer messages mean fewer of them to paste. Minecraft's chat
