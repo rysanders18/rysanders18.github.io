@@ -476,11 +476,13 @@ function mapHeights(masterIdx, staircase) {
 // skip(A, v) writes v as A[v] when v < prev and A[v+1] otherwise, where
 // prev is the value of the character just before it.
 
-// Characters per message. Minecraft's chat field holds 256, so 250 leaves
-// headroom. Messages were measured arriving at Minr at full length (250 in,
-// 250 out), so chat does not truncate them and this is a convenience
-// control, not a workaround. Nothing in the decoder depends on the value.
-const DEFAULT_MSG_LEN = 250;
+// Characters per message. Minecraft's chat limit is 256 characters, and the
+// packet's length check counts characters rather than UTF-8 bytes, so 256
+// CJK characters is the true maximum and there is nothing to gain by
+// staying under it. Messages were measured arriving at Minr at full length
+// (250 in, 250 out), so chat does not truncate. Nothing in the decoder
+// depends on this value; the shorter settings are only there for testing.
+const DEFAULT_MSG_LEN = 256;
 const MAGIC = "RYMH5";
 // Every pixel is a master colour index, so the symbol radix is fixed and no
 // per-image palette has to be transmitted.

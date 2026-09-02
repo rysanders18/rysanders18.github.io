@@ -113,7 +113,7 @@ for (const [name, px, opts] of cases) {
             check(M.toneOf(m) === (northT ? 2 : 1), `${name}: tone rule broken at ${x},${z}`);
         }
     }
-    const r = M.encodeMap(idx, 250);
+    const r = M.encodeMap(idx, 256);
     const maxLen = Math.max(...r.messages.map(m => m.length));
     for (const [i, m] of r.messages.entries()) {
         check(m.length <= 256, `${name} msg ${i} length ${m.length}`);
@@ -145,7 +145,7 @@ for (const [name, px, opts] of cases) {
 
 // 3. Corruption must be detected.
 {
-    const r = M.encodeMap(M.quantise(photoLike(2), { staircase: "valley", dither: "FloydSteinberg" }), 250);
+    const r = M.encodeMap(M.quantise(photoLike(2), { staircase: "valley", dither: "FloydSteinberg" }), 256);
     const trunc = r.messages.slice(); trunc[5] = trunc[5].slice(0, -3);
     let caught = false; try { M.decodeMessages(trunc); } catch (e) { caught = true; }
     check(caught, "truncated message not detected");
@@ -175,7 +175,7 @@ if (process.env.NMS_DIR) {
 // no-adjacent-duplicates property.
 {
     const idx = M.quantise(photoLike(3), { staircase: "valley", dither: "FloydSteinberg", maxHeight: 32 });
-    for (const len of [60, 80, 100, 150, 200, 250]) {
+    for (const len of [60, 80, 100, 150, 200, 250, 256]) {
         const r = M.encodeMap(idx, len);
         const longest = Math.max(...r.messages.map(m => m.length));
         check(longest <= len, `msgLen ${len}: longest message is ${longest}`);
