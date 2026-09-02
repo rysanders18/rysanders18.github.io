@@ -43,12 +43,14 @@
             <select id="ditherSelect"></select></label
           >
           <label class="inline"
-            ><input type="checkbox" id="cropToggle" /> Crop instead of
+            ><input type="checkbox" id="cropToggle" autocomplete="off" /> Crop instead of
             stretch</label
           >
         </div>
 
-        <div id="crop-controls" class="sliders">
+        <!-- Hidden until the crop toggle is on. Starting hidden in the
+             markup keeps them from flashing up before the script runs. -->
+        <div id="crop-controls" class="sliders" style="display: none">
           <label>Zoom <span id="zoomValue"></span>
             <input type="range" id="zoomSlider" min="1" max="8" step="0.05" value="1" /></label>
           <label>X <span id="xValue"></span>
