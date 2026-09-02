@@ -305,6 +305,23 @@ ol.steps li {
   overflow: hidden;
 }
 
+/* The main copy button flashes a confirmation for a second, then fades
+   back to its normal label. The green survives :disabled, which the last
+   message hits the moment it is copied. */
+#copy-next-btn {
+  transition: background 0.15s, opacity 0.2s ease;
+}
+
+#copy-next-btn.copied,
+#copy-next-btn.copied:disabled {
+  background: var(--ok);
+  color: #fff;
+}
+
+#copy-next-btn.fading {
+  opacity: 0;
+}
+
 #copy-bar {
   height: 100%;
   width: 0;

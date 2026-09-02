@@ -656,6 +656,7 @@ let sourceImage = null;
 let currentMessages = [];
 let nextToCopy = 0;
 let renderTimer = null;
+let flashTimers = [];
 
 function $(id) {
     return document.getElementById(id);
@@ -752,6 +753,36 @@ function copyText(text) {
     }
 }
 
+// Cancels a confirmation flash and puts the button back to its real label.
+function clearFlash() {
+    flashTimers.forEach(clearTimeout);
+    flashTimers = [];
+    $("copy-next-btn").classList.remove("copied", "fading");
+}
+
+// Confirms a copy on the main button for a second, then fades back to the
+// normal label. The text swap happens while the button is faded out, so the
+// label never visibly changes mid-fade. Feedback only: the clipboard write
+// has already happened by the time this runs.
+function flashCopied(index) {
+    const btn = $("copy-next-btn");
+    flashTimers.forEach(clearTimeout);
+    flashTimers = [];
+    btn.classList.remove("fading");
+    btn.classList.add("copied");
+    btn.textContent = `Message ${index + 1} Copied!`;
+    flashTimers.push(setTimeout(() => {
+        btn.classList.add("fading");
+        flashTimers.push(setTimeout(() => {
+            btn.classList.remove("copied", "fading");
+            updateCopyButton();
+        }, 200));
+    }, 1000));
+}
+
+// Copying any message also sets your place: everything above it is marked
+// done and the one below it becomes next, so clicking a row you already
+// pasted rewinds the run to there.
 function copyMessage(index) {
     if (index < 0 || index >= currentMessages.length) return;
     copyText(currentMessages[index]);
@@ -767,6 +798,7 @@ function copyMessage(index) {
     if (nextEl) nextEl.scrollIntoView({ block: "nearest" });
     nextToCopy = index + 1;
     updateCopyButton();
+    flashCopied(index);
 }
 
 function copyNext() {
@@ -774,6 +806,7 @@ function copyNext() {
 }
 
 function resetCopying() {
+    clearFlash();
     nextToCopy = 0;
     document.querySelectorAll("#msg-list li").forEach((li, i) => {
         li.classList.remove("done");
@@ -788,7 +821,7 @@ function showMessages(result) {
     list.innerHTML = "";
     result.messages.forEach((msg, i) => {
         const li = document.createElement("li");
-        li.title = "Click to copy";
+        li.title = "Click to copy this one and pick up the run from here";
         li.innerHTML = `<span class="msg-num">${i + 1}</span><code class="msg-body"></code>`;
         li.querySelector(".msg-body").textContent = msg;
         li.addEventListener("click", () => copyMessage(i));
