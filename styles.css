@@ -243,6 +243,32 @@ ol.steps li {
   font-size: 12px;
 }
 
+.sliders {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.6rem 1.2rem;
+  margin-top: 0.9rem;
+}
+
+.sliders label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.sliders label span {
+  float: right;
+  margin-left: 0.4rem;
+  color: var(--text);
+}
+
+.sliders input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
 .preview-wrap {
   display: flex;
   gap: 1.2rem;
@@ -250,6 +276,17 @@ ol.steps li {
   flex-wrap: wrap;
 }
 
+.preview-wrap figure {
+  margin: 0;
+}
+
+.preview-wrap figcaption {
+  font-size: 13px;
+  margin-top: 0.3rem;
+  max-width: 256px;
+}
+
+#source-image,
 #map-image {
   width: 256px;
   height: 256px;

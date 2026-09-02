@@ -22,34 +22,79 @@
       <h1>RYmaphub</h1>
       <p class="lede">
         Upload an image and get a 128x128 Minecraft map, delivered as a series
-        of chat messages you paste in game at the RYmaphub map hub.
+        of chat messages you paste in game at the RYmaphub map hub. Everything
+        below updates live as you move the controls.
       </p>
 
       <div class="panel">
         <div class="row">
-          <label for="imageUpload" class="file-label">Choose File</label>
+          <label for="imageUpload" id="file-label" class="file-label">Choose File</label>
           <input type="file" id="imageUpload" accept="image/*" />
-          <button onclick="processImage()">Convert</button>
         </div>
-        <div class="row">
+
+        <div class="row" style="margin-top: 1rem">
           <label class="inline"
-            ><input type="checkbox" id="ditherToggle" checked /> Dithering</label
+            >Staircasing
+            <select id="staircaseSelect"></select></label
           >
           <label class="inline"
-            >Encoding
-            <select id="modeSelect">
-              <option value="U" selected>Compact (Unicode, fewer messages)</option>
-              <option value="A">ASCII (more messages, safest)</option>
-            </select></label
+            >Dithering
+            <select id="ditherSelect"></select></label
+          >
+          <label class="inline"
+            ><input type="checkbox" id="cropToggle" /> Crop instead of
+            stretch</label
           >
         </div>
+
+        <div id="crop-controls" class="sliders">
+          <label>Zoom <span id="zoomValue"></span>
+            <input type="range" id="zoomSlider" min="1" max="8" step="0.05" value="1" /></label>
+          <label>X <span id="xValue"></span>
+            <input type="range" id="xSlider" min="0" max="100" step="1" value="50" /></label>
+          <label>Y <span id="yValue"></span>
+            <input type="range" id="ySlider" min="0" max="100" step="1" value="50" /></label>
+        </div>
+
+        <div id="height-controls" class="sliders">
+          <label>Max height <span id="maxHeightValue"></span>
+            <input type="range" id="maxHeightSlider" min="1" max="100" step="1" value="32" /></label>
+        </div>
+
+        <div class="sliders">
+          <label>Brightness <span id="brightnessValue"></span>
+            <input type="range" id="brightnessSlider" min="0" max="200" step="1" value="100" /></label>
+          <label>Contrast <span id="contrastValue"></span>
+            <input type="range" id="contrastSlider" min="0" max="200" step="1" value="100" /></label>
+          <label>Saturation <span id="saturationValue"></span>
+            <input type="range" id="saturationSlider" min="0" max="200" step="1" value="100" /></label>
+        </div>
+
+        <div class="row" style="margin-top: 0.8rem">
+          <button class="secondary" onclick="resetAdjustments()">Reset adjustments</button>
+        </div>
+
         <p class="muted" style="margin: 0.8rem 0 0">
-          For best results use a 128x128 image. Other sizes are stretched to
-          fit. Transparent pixels stay clear on the map.
+          Staircasing builds the map in 3D so every block gets three shades,
+          tripling the palette. Valley mode keeps the build as low as possible.
+          Transparent pixels stay clear on the map.
         </p>
       </div>
 
       <div id="output" style="display: none">
+        <h2>Preview</h2>
+        <div class="preview-wrap">
+          <figure>
+            <img id="source-image" alt="Cropped source" />
+            <figcaption class="muted">Source after crop and adjustments</figcaption>
+          </figure>
+          <figure>
+            <img id="map-image" alt="Map preview" title="Click to download" />
+            <figcaption class="muted">Map as it will look in game (click to download)</figcaption>
+          </figure>
+        </div>
+        <p id="stats-text" class="muted"></p>
+
         <h2>Messages</h2>
         <div class="panel">
           <div class="row">
@@ -58,28 +103,12 @@
             <span id="msg-progress" class="muted"></span>
           </div>
           <ul id="msg-list"></ul>
-          <p id="stats-text" class="muted" style="margin: 0.8rem 0 0"></p>
-        </div>
-
-        <h2>Preview</h2>
-        <div class="preview-wrap">
-          <img id="map-image" alt="Map preview" title="Click to download" />
-          <div>
-            <p style="margin-top: 0">
-              This is how the map will look in Minecraft. Click it to download
-              the preview.
-            </p>
-            <p class="muted">
-              Not happy with the result? Try toggling dithering, or start from
-              a higher-contrast source image.
-            </p>
-          </div>
         </div>
       </div>
 
       <h2>How to use it</h2>
       <ol class="steps">
-        <li>Convert your image above.</li>
+        <li>Choose an image above and adjust it until the preview looks right.</li>
         <li>
           In game, use <code>/warp tp rymaphub</code> and click the import
           sign. The script asks for message 1.
@@ -95,16 +124,13 @@
         </li>
         <li>Once every message is in, the map builds and lands in your hand.</li>
       </ol>
-      <p class="muted">
-        If the server refuses the compact messages, switch the encoding to
-        ASCII and convert again. It needs about twice as many messages but
-        uses only plain characters.
-      </p>
     </main>
 
     <footer>
-      Palette and colour matching adapted from
-      <a href="https://ak1089.github.io/minr/map-art">AK1089's map art maker</a>.
+      Palette adapted from
+      <a href="https://ak1089.github.io/minr/map-art">AK1089's map art maker</a>;
+      dithering and Valley staircasing after
+      <a href="https://rebane2001.com/mapartcraft/">MapartCraft</a>.
       Source on
       <a href="https://github.com/rysanders18/rysanders18.github.io">GitHub</a>.
     </footer>
