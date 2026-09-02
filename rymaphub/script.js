@@ -485,8 +485,9 @@ function mapHeights(masterIdx, staircase) {
 // packet's length check counts characters rather than UTF-8 bytes, so 256
 // CJK characters is the true maximum and there is nothing to gain by
 // staying under it. Messages were measured arriving at Minr at full length
-// (250 in, 250 out), so chat does not truncate. Nothing in the decoder
-// depends on this value; the shorter settings are only there for testing.
+// (250 in, 250 out), so chat does not truncate. The page always encodes at
+// this length; encodeMap still takes the argument so the round-trip tests
+// can sweep shorter ones. Nothing in the decoder depends on it.
 const DEFAULT_MSG_LEN = 256;
 const MAGIC = "RYMH";
 // Every pixel is a master colour index, so the symbol radix is fixed and no
@@ -688,8 +689,7 @@ function readOptions() {
         saturation: parseInt($("saturationSlider").value, 10),
         staircase: $("staircaseSelect").value,
         dither: $("ditherSelect").value,
-        maxHeight: parseInt($("maxHeightSlider").value, 10),
-        msgLen: parseInt($("msgLenSelect").value, 10)
+        maxHeight: parseInt($("maxHeightSlider").value, 10)
     };
 }
 
@@ -894,7 +894,7 @@ function render() {
 
     let result;
     try {
-        result = encodeMap(masterIdx, o.msgLen);
+        result = encodeMap(masterIdx, DEFAULT_MSG_LEN);
     } catch (error) {
         $("stats-text").textContent = `Could not encode image: ${error.message}`;
         return;
@@ -992,7 +992,6 @@ if (typeof document !== "undefined") {
             $(id).addEventListener("input", () => { updateSliderLabels(); scheduleRender(); });
         }
         document.addEventListener("keydown", onShortcut);
-        $("msgLenSelect").addEventListener("change", scheduleRender);
         $("ditherSelect").addEventListener("change", scheduleRender);
         $("staircaseSelect").addEventListener("change", () => { updateCropControls(); scheduleRender(); });
         updateCropControls();
