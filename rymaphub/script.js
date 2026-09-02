@@ -447,7 +447,7 @@ function mapHeights(masterIdx, staircase) {
 // each column, so the decoder can finish one column's heights at a time).
 // A pixel is a master colour index, 0..156, and K is that full count rather
 // than a per-image palette: 157^2 already fits the alphabet, so packing two
-// pixels per character needs no palette and the header stays 8 characters
+// pixels per character needs no palette and the header stays 7 characters
 // no matter how many colours the image uses. P = pixels per plain symbol
 // (2 when K^2 fits the alphabet, else 1), base = K^P, N = alphabet size.
 //   symbol s <  base : P pixels. P=1: s. P=2: floor(s/K) then s%K.
@@ -469,7 +469,7 @@ function mapHeights(masterIdx, staircase) {
 //     preceding character skipped over, so it can never equal it.
 //
 // Messages (each <= MSG_LEN characters), with C = N - 1:
-//   header : "RYMH4" + A[N-1-nMsgs] + A[P] + skip(A, check)
+//   header : "RYMH" + A[N-1-nMsgs] + A[P] + skip(A, check)
 //            check = (P + nMsgs) % C
 //   data i : A[N-1-i] + payload + skip(A, check),  i = 1..nMsgs-1
 //            check = (i + sum(payload symbol values)) % C
@@ -483,7 +483,7 @@ function mapHeights(masterIdx, staircase) {
 // (250 in, 250 out), so chat does not truncate. Nothing in the decoder
 // depends on this value; the shorter settings are only there for testing.
 const DEFAULT_MSG_LEN = 256;
-const MAGIC = "RYMH5";
+const MAGIC = "RYMH";
 // Every pixel is a master colour index, so the symbol radix is fixed and no
 // per-image palette has to be transmitted.
 const COLOURS = MASTER_COUNT;
