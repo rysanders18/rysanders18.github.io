@@ -377,7 +377,7 @@
   const spriteColors = (name) => Object.values(SPRITES[name].pal);
 
   /* ------------------------------------------------------------------ */
-  /* Sound (synthesised stand-ins for the Minecraft sounds)              */
+  /* Sound                                                               */
   /* ------------------------------------------------------------------ */
 
   let actx = null;
@@ -396,6 +396,7 @@
         return null;
       }
     }
+    loadSounds();
     if (actx.state === "suspended") actx.resume();
     return actx;
   }
@@ -441,7 +442,9 @@
     src.start(t);
   }
 
-  const SFX = {
+  /* Synthesised fallbacks, used only until the real files have decoded
+     (or if the browser cannot decode them). */
+  const SYNTH = {
     pling: (vol, pitch) => tone("sine", 880 * pitch, vol * 0.5, 0.6),
     chime: (vol, pitch) => {
       tone("triangle", 1046 * pitch, vol * 0.35, 0.9);
@@ -476,6 +479,78 @@
       [0, 7, 12, 19].forEach((n, i) => tone("triangle", 523 * pitch * Math.pow(2, n / 12), vol * 0.3, 0.5, { delay: i * 0.12 }));
     },
     enderTeleport: (vol, pitch) => tone("sine", 300 * pitch, vol * 0.3, 0.5, { slide: 1200 * pitch }),
+  };
+
+  /* The game's own sounds, resolved through sounds.json: each event maps
+     to its variants (file, volume). One is picked at random per play,
+     like the sound engine does. */
+  const SOUNDS = {"netherite_hit":[["netherite_hit1",1.0],["netherite_hit2",1.0],["netherite_hit3",1.0],["netherite_hit4",1.0],["netherite_hit5",1.0],["netherite_hit6",1.0]],"drink_milk":[["drink_milk1",1.0],["drink_milk2",1.0],["drink_milk3",1.0],["drink_milk4",1.0],["drink_milk5",1.0]],"egg":[["egg1",1.0]],"eat":[["eat1",1.0],["eat2",1.0],["eat3",1.0]],"levelup":[["levelup1",1.0]],"cat":[["cat1",0.6],["cat2",0.5],["cat3",0.6],["cat4",0.5]],"pling":[["pling1",1.0]],"chime":[["chime1",1.0]],"didgeridoo":[["didgeridoo1",1.0]],"burp":[["burp1",1.0]],"firecharge":[["firecharge1",1.0]],"firework_large":[["firework_large1",1.0]],"firework":[["firework1",1.0]],"witch_drink":[["witch_drink1",1.0],["witch_drink2",1.0],["witch_drink3",1.0],["witch_drink4",1.0]],"goat_scream":[["goat_scream1",1.0],["goat_scream2",1.0],["goat_scream3",1.0],["goat_scream4",1.0],["goat_scream5",1.0]],"goat_milk":[["goat_milk1",1.0],["goat_milk2",1.0],["goat_milk3",1.0]],"toast":[["toast1",0.6]],"ender_teleport":[["ender_teleport1",1.0],["ender_teleport2",1.0]]};
+
+  const canOgg = (() => {
+    try {
+      return !!new Audio().canPlayType("audio/ogg; codecs=vorbis");
+    } catch (e) {
+      return false;
+    }
+  })();
+  const buffers = {};
+  let soundsRequested = false;
+
+  function loadSounds() {
+    if (soundsRequested || !actx || typeof fetch !== "function") return;
+    soundsRequested = true;
+    const ext = canOgg ? "ogg" : "m4a";
+    for (const key of Object.keys(SOUNDS)) {
+      for (const [name] of SOUNDS[key]) {
+        fetch(`sounds/${name}.${ext}`)
+          .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(r.status)))
+          .then((b) => actx.decodeAudioData(b))
+          .then((buf) => {
+            buffers[name] = buf;
+          })
+          .catch(() => {});
+      }
+    }
+  }
+
+  function play(key, synth, vol, pitch) {
+    const a = audio();
+    if (!a || muted) return;
+    const variants = SOUNDS[key];
+    const v = variants[Math.floor(Math.random() * variants.length)];
+    const buf = buffers[v[0]];
+    if (!buf) {
+      SYNTH[synth](vol, pitch);
+      return;
+    }
+    const src = a.createBufferSource();
+    src.buffer = buf;
+    src.playbackRate.value = Math.max(0.5, Math.min(2, pitch));
+    const g = a.createGain();
+    g.gain.value = vol * v[1];
+    src.connect(g).connect(a.destination);
+    src.start();
+  }
+
+  const SFX = {
+    pling: (v, p) => play("pling", "pling", v, p),
+    chime: (v, p) => play("chime", "chime", v, p),
+    didgeridoo: (v, p) => play("didgeridoo", "didgeridoo", v, p),
+    eat: (v, p) => play("eat", "eat", v, p),
+    egg: (v, p) => play("egg", "egg", v, p),
+    netheriteHit: (v, p) => play("netherite_hit", "netheriteHit", v, p),
+    levelup: (v, p) => play("levelup", "levelup", v, p),
+    cat: (v, p) => play("cat", "cat", v, p),
+    burp: (v, p) => play("burp", "burp", v, p),
+    firework: (v, p) => play("firework", "firework", v, p),
+    fireworkLarge: (v, p) => play("firework_large", "firework", v, p),
+    firecharge: (v, p) => play("firecharge", "firecharge", v, p),
+    drinkMilk: (v, p) => play("drink_milk", "drinkMilk", v, p),
+    goatMilk: (v, p) => play("goat_milk", "goatMilk", v, p),
+    goatScream: (v, p) => play("goat_scream", "goatScream", v, p),
+    witchDrink: (v, p) => play("witch_drink", "witchDrink", v, p),
+    toast: (v, p) => play("toast", "toast", v, p),
+    enderTeleport: (v, p) => play("ender_teleport", "enderTeleport", v, p),
   };
 
   /* ------------------------------------------------------------------ */
@@ -1206,7 +1281,7 @@
         SFX.eat(0.75, rand(1.3, 1.7));
         SFX.egg(0.4, rand(1.3, 1.7));
         SFX.firecharge(0.5, rand(1.4, 1.8));
-        SFX.firework(0.5, rand(1.8, 2.0));
+        SFX.fireworkLarge(0.5, rand(1.8, 2.0));
       } else {
         burst(gx, gy, 16, ["#37ffe7"], { shape: "circle", gravity: -20 });
         SFX.burp(0.45, rand(0.9, 1.1));
@@ -1756,6 +1831,13 @@
       }
     });
     scene.addEventListener("pointerdown", () => audio(), { once: true });
+    // Start decoding the sound files now; the context stays suspended until a gesture
+    try {
+      actx = new (window.AudioContext || window.webkitAudioContext)();
+      loadSounds();
+    } catch (e) {
+      /* no audio */
+    }
   }
 
   boot();

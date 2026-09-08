@@ -1,0 +1,206 @@
+{
+ "netherite_hit": [
+  [
+   "netherite_hit1",
+   1.0
+  ],
+  [
+   "netherite_hit2",
+   1.0
+  ],
+  [
+   "netherite_hit3",
+   1.0
+  ],
+  [
+   "netherite_hit4",
+   1.0
+  ],
+  [
+   "netherite_hit5",
+   1.0
+  ],
+  [
+   "netherite_hit6",
+   1.0
+  ]
+ ],
+ "drink_milk": [
+  [
+   "drink_milk1",
+   1.0
+  ],
+  [
+   "drink_milk2",
+   1.0
+  ],
+  [
+   "drink_milk3",
+   1.0
+  ],
+  [
+   "drink_milk4",
+   1.0
+  ],
+  [
+   "drink_milk5",
+   1.0
+  ]
+ ],
+ "egg": [
+  [
+   "egg1",
+   1.0
+  ]
+ ],
+ "eat": [
+  [
+   "eat1",
+   1.0
+  ],
+  [
+   "eat2",
+   1.0
+  ],
+  [
+   "eat3",
+   1.0
+  ]
+ ],
+ "levelup": [
+  [
+   "levelup1",
+   1.0
+  ]
+ ],
+ "cat": [
+  [
+   "cat1",
+   0.6
+  ],
+  [
+   "cat2",
+   0.5
+  ],
+  [
+   "cat3",
+   0.6
+  ],
+  [
+   "cat4",
+   0.5
+  ]
+ ],
+ "pling": [
+  [
+   "pling1",
+   1.0
+  ]
+ ],
+ "chime": [
+  [
+   "chime1",
+   1.0
+  ]
+ ],
+ "didgeridoo": [
+  [
+   "didgeridoo1",
+   1.0
+  ]
+ ],
+ "burp": [
+  [
+   "burp1",
+   1.0
+  ]
+ ],
+ "firecharge": [
+  [
+   "firecharge1",
+   1.0
+  ]
+ ],
+ "firework_large": [
+  [
+   "firework_large1",
+   1.0
+  ]
+ ],
+ "firework": [
+  [
+   "firework1",
+   1.0
+  ]
+ ],
+ "witch_drink": [
+  [
+   "witch_drink1",
+   1.0
+  ],
+  [
+   "witch_drink2",
+   1.0
+  ],
+  [
+   "witch_drink3",
+   1.0
+  ],
+  [
+   "witch_drink4",
+   1.0
+  ]
+ ],
+ "goat_scream": [
+  [
+   "goat_scream1",
+   1.0
+  ],
+  [
+   "goat_scream2",
+   1.0
+  ],
+  [
+   "goat_scream3",
+   1.0
+  ],
+  [
+   "goat_scream4",
+   1.0
+  ],
+  [
+   "goat_scream5",
+   1.0
+  ]
+ ],
+ "goat_milk": [
+  [
+   "goat_milk1",
+   1.0
+  ],
+  [
+   "goat_milk2",
+   1.0
+  ],
+  [
+   "goat_milk3",
+   1.0
+  ]
+ ],
+ "toast": [
+  [
+   "toast1",
+   0.6
+  ]
+ ],
+ "ender_teleport": [
+  [
+   "ender_teleport1",
+   1.0
+  ],
+  [
+   "ender_teleport2",
+   1.0
+  ]
+ ]
+}
