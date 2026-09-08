@@ -1,0 +1,578 @@
+/* Cookie: a browser port of the Harder Hat cookie-clicker secret.
+   Self-contained page; nothing here touches site.css. The scene is laid
+   out at a fixed 1200x800 and scaled to fit, with one block = 80px. */
+
+:root {
+  --pixel: "Minecraft", "VT323", "Courier New", monospace;
+  --page: #101012;
+  --page-ink: #d4d4d4;
+  --page-quiet: #8b8b93;
+  --page-link: #8ec5ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--page-ink);
+  font-family: "EB Garamond", Garamond, Georgia, serif;
+  font-size: 18px;
+  min-height: 100%;
+}
+
+a {
+  color: var(--page-link);
+}
+
+.topbar {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.9rem 1rem 0.6rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  font-family: "Lucida Sans", "Lucida Grande", Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  color: var(--page-quiet);
+}
+
+.topbar .crumbs a {
+  color: #cfd6e6;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.topbar .crumbs a:hover {
+  text-decoration: underline;
+}
+
+.topbar .crumbs .sep {
+  color: #5c5f70;
+  margin: 0 5px;
+}
+
+.topbar .tools {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.topbar button {
+  font: inherit;
+  color: #cfd6e6;
+  background: #1c1c20;
+  border: 1px solid #2c2c33;
+  border-radius: 6px;
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+}
+
+.topbar button:hover {
+  background: #26262c;
+}
+
+/* ---- Scene frame ---- */
+
+.scene-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 800px;
+  overflow: hidden;
+  background: #000;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.scene {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1200px;
+  height: 800px;
+  transform-origin: 0 0;
+  overflow: hidden;
+  background: #0a0a0a;
+  cursor: crosshair;
+  font-family: var(--pixel);
+  image-rendering: pixelated;
+}
+
+/* Blocks. Every cell carries a texture class generated at runtime. */
+
+.cell {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  background-size: 80px 80px;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.wall {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1200px;
+  height: 560px;
+}
+
+/* The alcove behind the cookie is recessed two blocks; darken it slightly
+   and throw a shadow off the button columns to sell the depth. */
+
+.wall .cell.alcove {
+  filter: brightness(0.82);
+}
+
+.wall .cell.col-left {
+  box-shadow: 6px 0 14px rgba(0, 0, 0, 0.55);
+}
+
+.wall .cell.col-right {
+  box-shadow: -6px 0 14px rgba(0, 0, 0, 0.55);
+}
+
+.wall .cell.dim {
+  filter: brightness(0.62);
+}
+
+.wall .cell.dimmer {
+  filter: brightness(0.5);
+}
+
+/* Floor: a block grid laid flat with a real perspective transform. */
+
+.floor-wrap {
+  position: absolute;
+  left: 0;
+  top: 560px;
+  width: 1200px;
+  height: 240px;
+  overflow: hidden;
+  perspective: 520px;
+  perspective-origin: 50% 0;
+}
+
+.floor {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1200px;
+  height: 640px;
+  transform-origin: 50% 0;
+  transform: rotateX(62deg);
+}
+
+.floor .cell {
+  filter: brightness(0.9);
+}
+
+.floor .cell.dark {
+  filter: brightness(0.7);
+}
+
+.floor-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0) 45%);
+  pointer-events: none;
+}
+
+/* Stone buttons sit on the face of a block */
+
+.stone-button {
+  position: absolute;
+  width: 30px;
+  height: 20px;
+  background: linear-gradient(#a7a7a7, #8f8f8f);
+  border: 2px solid #5e5e5e;
+  border-top-color: #c9c9c9;
+  border-left-color: #c9c9c9;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  transition: transform 0.05s;
+}
+
+.stone-button:hover {
+  filter: brightness(1.12);
+}
+
+.stone-button.pressed {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* Item displays (cookie, goldens, buckets) */
+
+.item {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  background-size: 64px 64px;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  pointer-events: none;
+  transform-origin: 50% 50%;
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.55));
+}
+
+.item.glint::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  -webkit-mask: var(--mask) 0 0 / 64px 64px no-repeat;
+  mask: var(--mask) 0 0 / 64px 64px no-repeat;
+  background: linear-gradient(
+    115deg,
+    transparent 25%,
+    rgba(214, 140, 255, 0.55) 40%,
+    rgba(255, 255, 255, 0.35) 47%,
+    rgba(214, 140, 255, 0.55) 54%,
+    transparent 70%
+  );
+  background-size: 300% 300%;
+  animation: glint 1.6s linear infinite;
+  mix-blend-mode: screen;
+}
+
+@keyframes glint {
+  from {
+    background-position: 100% 100%;
+  }
+  to {
+    background-position: 0% 0%;
+  }
+}
+
+.item.pop {
+  animation: pop 0.6s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+@keyframes pop {
+  0%,
+  16% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.item.spawn {
+  animation: spawn 0.18s ease-out;
+}
+
+@keyframes spawn {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.item.vanish {
+  animation: vanish 0.2s linear forwards;
+}
+
+@keyframes vanish {
+  0%,
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+
+/* Interaction entities: invisible hit boxes */
+
+.hit {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  margin: -40px 0 0 -40px;
+  cursor: pointer;
+}
+
+/* Text displays. Line height is one fifth of a block, like the 0.8-scale
+   text_display entities in the room. */
+
+.td {
+  position: absolute;
+  font-family: var(--pixel);
+  font-size: 19px;
+  line-height: 16px;
+  font-weight: bold;
+  white-space: pre;
+  color: #d4d4d4;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+}
+
+.td .n {
+  font-weight: normal;
+}
+
+.td.center {
+  left: 600px;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.td.left {
+  text-align: right;
+}
+
+.td.right {
+  text-align: left;
+}
+
+/* Particle canvas */
+
+#fx {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1200px;
+  height: 800px;
+  pointer-events: none;
+}
+
+/* Chat (bottom left) */
+
+.chat {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  width: 470px;
+  font-family: var(--pixel);
+  font-size: 19px;
+  line-height: 18px;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.chat .line {
+  background: rgba(0, 0, 0, 0.5);
+  padding: 0 4px;
+  color: #fff;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.6);
+  white-space: pre-wrap;
+  min-height: 18px;
+  transition: opacity 0.6s;
+}
+
+.chat .line.fade {
+  opacity: 0;
+}
+
+.chat-input {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  height: 24px;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  outline: none;
+  color: #fff;
+  font-family: var(--pixel);
+  font-size: 19px;
+  padding: 0 6px;
+}
+
+/* Action bar (bottom centre, above where the hotbar would be) */
+
+.actionbar {
+  position: absolute;
+  left: 50%;
+  bottom: 30px;
+  transform: translateX(-50%);
+  font-family: var(--pixel);
+  font-size: 19px;
+  font-weight: bold;
+  white-space: nowrap;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1s;
+}
+
+.actionbar.show {
+  opacity: 1;
+  transition: none;
+}
+
+/* Crosshair */
+
+.crosshair {
+  position: absolute;
+  left: 600px;
+  top: 400px;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  pointer-events: none;
+  opacity: 0.8;
+  mix-blend-mode: difference;
+}
+
+.crosshair::before,
+.crosshair::after {
+  content: "";
+  position: absolute;
+  background: #fff;
+}
+
+.crosshair::before {
+  left: 8px;
+  top: 0;
+  width: 2px;
+  height: 18px;
+}
+
+.crosshair::after {
+  top: 8px;
+  left: 0;
+  width: 18px;
+  height: 2px;
+}
+
+/* Secret completion overlay */
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  font-family: var(--pixel);
+  color: #fff;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.7);
+  text-align: center;
+  animation: fadein 0.8s;
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+}
+
+.overlay h2 {
+  margin: 0;
+  font-size: 40px;
+  color: #ffd700;
+}
+
+.overlay p {
+  margin: 0;
+  font-size: 20px;
+  color: #d4d4d4;
+}
+
+.overlay button {
+  font-family: var(--pixel);
+  font-size: 20px;
+  padding: 10px 18px;
+  background: #6f6f6f;
+  color: #fff;
+  border: 2px solid #000;
+  box-shadow: inset 2px 2px 0 #aaa, inset -2px -2px 0 #444;
+  cursor: pointer;
+}
+
+.overlay button:hover {
+  background: #7f8fbf;
+}
+
+/* Reset label */
+
+.td.tiny {
+  font-size: 15px;
+  line-height: 13px;
+  color: #9a9a9a;
+}
+
+/* ---- Writeup under the scene ---- */
+
+.notes {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.4rem 1rem 4rem;
+  line-height: 1.5;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0 2.5rem;
+}
+
+.notes h2 {
+  font-family: "Lucida Sans", "Lucida Grande", Geneva, Verdana, sans-serif;
+  font-size: 1.1rem;
+  color: #eee;
+  margin: 1rem 0 0.3rem;
+}
+
+.notes p {
+  margin: 0.5rem 0;
+}
+
+.notes ul {
+  margin: 0.4rem 0;
+  padding-left: 1.2rem;
+}
+
+.notes .k {
+  color: #ffd700;
+}
+
+.notes .d {
+  color: #37ffe7;
+}
+
+.notes .m {
+  color: #f5f5ed;
+}
+
+.notes table {
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  margin: 0.5rem 0;
+}
+
+.notes td,
+.notes th {
+  text-align: left;
+  padding: 2px 12px 2px 0;
+  border-bottom: 1px solid #26262c;
+  vertical-align: top;
+}
+
+.notes th {
+  color: #eee;
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  html,
+  body {
+    font-size: 16px;
+  }
+}

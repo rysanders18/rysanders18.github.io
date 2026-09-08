@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cookie | RYgamer's Site</title>
+    <meta name="description" content="A browser port of the cookie-clicker secret inside Harder Hat on Minr: click the cookie, catch golden and diamond cookies, buy upgrades, activate milk, reach 100,000,000." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%23d4985e'/%3E%3Ccircle cx='5' cy='6' r='1.2' fill='%233d2410'/%3E%3Ccircle cx='10' cy='5' r='1.2' fill='%233d2410'/%3E%3Ccircle cx='9' cy='10' r='1.2' fill='%233d2410'/%3E%3Ccircle cx='5' cy='11' r='1' fill='%233d2410'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=VT323&display=swap" />
+    <link rel="stylesheet" href="cookie.css" />
+  </head>
+
+  <body>
+    <div class="topbar">
+      <div class="crumbs"><a href="/">home</a><span class="sep">/</span><a href="/games/">games</a><span class="sep">/</span><a href="/games/cookie/">cookie</a></div>
+      <div class="tools">
+        <button id="sound-toggle" type="button">sound: on</button>
+      </div>
+    </div>
+
+    <div class="scene-wrap">
+      <div class="scene" id="scene">
+        <div class="wall" id="wall"></div>
+        <div class="floor-wrap"><div class="floor" id="floor"></div></div>
+        <div class="entities" id="entities"></div>
+        <canvas id="fx" width="1200" height="800"></canvas>
+        <div class="crosshair"></div>
+        <div class="chat" id="chat"></div>
+        <div class="actionbar" id="actionbar"></div>
+      </div>
+    </div>
+
+    <div class="notes">
+      <div>
+        <h2>What this is</h2>
+        <p>
+          A one-to-one port of the cookie clicker hidden inside <a href="/projects/">Harder Hat</a> on <a href="https://forums.minr.org/">Minr</a>. The original is written in MSC and runs in five identical rooms in the Theta world; every price table, drop chance, timing and chat message here comes straight from those scripts. Progress saves in your browser.
+        </p>
+        <h2>How to play</h2>
+        <ul>
+          <li>Click the cookie. A click only lands if the cooldown has passed since your last landed click, otherwise it flashes red.</li>
+          <li>Every landed click rolls for a <span class="k">golden cookie</span> (worth 20&times; a click) which appears in one of fourteen spots around the cookie. If the spot it picks is taken, it does not spawn.</li>
+          <li>Each golden spawn has a chance to be a <span class="d">diamond cookie</span> instead, worth 200&times; a click.</li>
+          <li>Press the stone buttons on the coloured blocks to buy upgrades. The wall lights up a line of particles when something becomes affordable.</li>
+          <li><span class="m">Milk</span> costs 15,000 to unlock. Click the bucket to multiply every cookie source for a few seconds; it recharges over 45 seconds.</li>
+          <li>Buy the 100,000,000-cookie button to beat the secret.</li>
+        </ul>
+      </div>
+      <div>
+        <h2>Upgrade ladders</h2>
+        <table>
+          <tr><th>Ladder</th><th>Stages</th><th>Effect</th></tr>
+          <tr><td>Cookie Cooldown</td><td>11</td><td>1000 ms down to 50 ms between landed clicks</td></tr>
+          <tr><td>Cookie Multiplier</td><td>500</td><td>&times;2 up to &times;501 per click; price 10 + 5<i>i</i>(<i>i</i>+1)</td></tr>
+          <tr><td>Golden Cookie Chances</td><td>16</td><td>1/50 down to 1/2 per click</td></tr>
+          <tr><td>Diamond Cookie Percent</td><td>13</td><td>1/500 down to 1/3 of golden spawns</td></tr>
+          <tr><td>Milk Duration</td><td>10</td><td>5 s up to 20 s</td></tr>
+          <tr><td>Milk Multiplier</td><td>11</td><td>&times;2 up to &times;20 while milk is active</td></tr>
+        </table>
+        <h2>Notes</h2>
+        <p>
+          The optimiser that ships with the scripts puts the fastest route to 100,000,000 at about 23 minutes of continuous clicking. Sounds are synthesised stand-ins for the note block, eating and milk sounds the room plays. The reset button on the far left asks you to type &ldquo;yes&rdquo; in chat, like the one in the room.
+        </p>
+      </div>
+    </div>
+
+    <script src="cookie.js"></script>
+  </body>
+</html>
