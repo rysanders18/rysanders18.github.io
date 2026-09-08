@@ -3,9 +3,12 @@
 Ryan Sanders's personal site and portfolio, served by GitHub Pages. Plain HTML,
 CSS, and JavaScript, no build step.
 
-- `index.html` - portfolio landing page.
-- `portfolio.css` - stylesheet for the landing page only.
-- `puzzle.js` - the playable 5x5 rescue-puzzle demo in the landing-page hero
+- `index.html` - sectioned homepage (games / minr / projects / maths / cv / other).
+- `site.css` - stylesheet for the homepage and section pages.
+- `games/`, `minr/`, `projects/`, `maths/`, `other/` - section pages, currently all to-do lists.
+- `portfolio/` - the recruiter-facing portfolio page, linked from the nav as "cv".
+- `portfolio.css` - stylesheet for the portfolio page.
+- `puzzle.js` - the playable 5x5 rescue-puzzle demo in the portfolio hero
   (a miniature of [disco-zoo-rl](https://github.com/rysanders18/disco-zoo-rl)).
 - `styles.css` - shared stylesheet for the tool pages.
 - `rymaphub/` - RYmaphub, the Minr map art tool. `script.js` holds the image

@@ -1,0 +1,216 @@
+/* Site-wide stylesheet for the sectioned site (homepage + section pages).
+   The tool pages keep styles.css; /portfolio/ keeps portfolio.css.
+   Colors are Catppuccin Latte (MIT). */
+
+:root {
+  --purple: #936be5;
+  --maroon: #e74b58;
+  --yellow: #ed8936;
+  --lime: #48bb78;
+  --teal: #179299;
+  --blue: #04a5e5;
+  --text: #4c4f69;
+  --link: #4d73bf;
+  --subtext-b: #5c5f77;
+  --subtext-a: #6c6f85;
+  --overlay-a: #9ca0b0;
+  --surface-a: #ccd0da;
+  --base: hsl(40, 23%, 97%);
+  --mantle: hsl(40, 22%, 95%);
+  --crust: hsl(40, 21%, 92%);
+  --serif: "EB Garamond", Garamond, Georgia, serif;
+  --sans: "Lucida Sans", "Lucida Grande", "Lucida Sans Unicode", Geneva,
+    Verdana, sans-serif;
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--crust);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.layout {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2rem;
+  padding: 2rem 1rem 4rem;
+}
+
+/* Sidebar */
+
+.sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 2rem;
+}
+
+.site-title {
+  display: block;
+  font-family: var(--serif);
+  font-size: 1.44rem;
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+  margin-bottom: 1.2rem;
+}
+
+.site-title:hover {
+  color: #000;
+}
+
+.nav-list {
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.nav-link {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  color: var(--text);
+  background: var(--mantle);
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.nav-link:hover {
+  background: var(--base);
+  color: #000;
+  transform: translateX(2%);
+}
+
+.social-icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.8rem;
+  font-size: 0.85rem;
+}
+
+.social-icons a {
+  color: var(--subtext-a);
+  text-decoration: none;
+}
+
+.social-icons a:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+/* Main content card */
+
+.main-content {
+  width: 768px;
+  max-width: 100%;
+  background: var(--base);
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.path {
+  font-size: 0.85rem;
+  color: var(--subtext-a);
+}
+
+.path a {
+  color: var(--subtext-a);
+  text-decoration: none;
+}
+
+.path a:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+.title {
+  font-family: var(--serif);
+  font-size: 2.2rem;
+  font-weight: 500;
+  margin: 0.2rem 0 0.1rem;
+  color: var(--text);
+}
+
+.metadata {
+  font-size: 0.85rem;
+  color: var(--overlay-a);
+  margin-bottom: 1.6rem;
+}
+
+.main-content a {
+  color: var(--link);
+}
+
+/* Uncompleted items */
+
+.todo-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.todo-list li {
+  padding-left: 1.7rem;
+  position: relative;
+}
+
+.todo-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 0.85em;
+  height: 0.85em;
+  border: 1.5px solid var(--overlay-a);
+  border-radius: 3px;
+  background: var(--mantle);
+}
+
+.todo-tag {
+  color: var(--overlay-a);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+/* Small screens: sidebar stacks above content */
+
+@media (max-width: 839px) {
+  .layout {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.2rem;
+    padding: 1.2rem 0.8rem 3rem;
+  }
+
+  .sidebar {
+    position: static;
+    width: 100%;
+  }
+
+  .nav-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .main-content {
+    width: 100%;
+    padding: 1.5rem 1.2rem;
+  }
+}
