@@ -1,6 +1,9 @@
-/* Site-wide stylesheet for the sectioned site (homepage + section pages).
-   The tool pages keep styles.css; /portfolio/ keeps portfolio.css.
-   Colors are Catppuccin Latte (MIT). */
+/* Stylesheet for the homepage and section pages, written from scratch for
+   this site. The look: a warm grey field with a raised 768px reading panel
+   that scrolls internally, a quiet sidebar of pill links on the left, serif
+   body text under a small sans-serif header block.
+   Colors are Catppuccin Latte (MIT). The tool pages keep styles.css and
+   /portfolio/ keeps portfolio.css. */
 
 :root {
   --purple: #936be5;
@@ -9,19 +12,20 @@
   --lime: #48bb78;
   --teal: #179299;
   --blue: #04a5e5;
-  --text: #4c4f69;
+  --darkblue: #1e66f5;
+  --ink: #4c4f69;
   --link: #4d73bf;
-  --subtext-b: #5c5f77;
-  --subtext-a: #6c6f85;
-  --overlay-a: #9ca0b0;
-  --surface-a: #ccd0da;
-  --base: hsl(40, 23%, 97%);
-  --mantle: hsl(40, 22%, 95%);
-  --crust: hsl(40, 21%, 92%);
+  --quiet: #6c6f85;
+  --quieter: #8c8fa1;
+  --faint: #9ca0b0;
+  --edge: #ccd0da;
+  --panel: hsl(40, 23%, 97%);
+  --pill: hsl(40, 22%, 95%);
+  --field: hsl(40, 21%, 92%);
   --serif: "EB Garamond", Garamond, Georgia, serif;
   --sans: "Lucida Sans", "Lucida Grande", "Lucida Sans Unicode", Geneva,
     Verdana, sans-serif;
-  color-scheme: light;
+  --mono: "Cascadia Code", "Cascadia Mono", ui-monospace, Consolas, monospace;
 }
 
 * {
@@ -30,187 +34,269 @@
 
 body {
   margin: 0;
-  background: var(--crust);
-  color: var(--text);
-  font-family: var(--sans);
-  font-size: 16px;
-  line-height: 1.6;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--field);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 18px;
 }
 
-.layout {
+/* The page is one viewport-high row: sidebar, reading panel, empty right
+   rail for symmetry on wide screens. Only the panel scrolls. */
+
+.shell {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  gap: 2rem;
-  padding: 2rem 1rem 4rem;
+  height: 100vh;
 }
 
-/* Sidebar */
-
-.sidebar {
-  width: 200px;
-  flex-shrink: 0;
-  position: sticky;
-  top: 2rem;
+.side-rail {
+  width: 288px;
+  flex: 0 1 auto;
+  padding: 1rem;
 }
 
-.site-title {
-  display: block;
-  font-family: var(--serif);
-  font-size: 1.44rem;
-  font-weight: 600;
-  color: var(--text);
-  text-decoration: none;
-  margin-bottom: 1.2rem;
-}
-
-.site-title:hover {
-  color: #000;
-}
-
-.nav-list {
-  list-style: none;
-  margin: 0 0 1.5rem;
+.side-rail.right {
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
 }
 
-.nav-link {
-  display: block;
-  padding: 0.5rem 0.75rem;
-  color: var(--text);
-  background: var(--mantle);
-  text-decoration: none;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  transition: transform 0.15s ease, background 0.15s ease;
+.shell > .gap {
+  flex: 0 1 18px;
 }
 
-.nav-link:hover {
-  background: var(--base);
-  color: #000;
-  transform: translateX(2%);
-}
-
-.social-icons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem 0.8rem;
-  font-size: 0.85rem;
-}
-
-.social-icons a {
-  color: var(--subtext-a);
-  text-decoration: none;
-}
-
-.social-icons a:hover {
-  color: var(--text);
-  text-decoration: underline;
-}
-
-/* Main content card */
-
-.main-content {
+.reading-panel {
   width: 768px;
   max-width: 100%;
-  background: var(--base);
-  border-radius: 8px;
+  flex-shrink: 0;
+  height: 100vh;
+  overflow-y: scroll;
+  background: var(--panel);
+  border-radius: 0 0 8px 8px;
   padding: 2rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.path {
-  font-size: 0.85rem;
-  color: var(--subtext-a);
+/* Sidebar */
+
+.masthead {
+  margin: 4rem 0 1rem;
+  padding-bottom: 1rem;
 }
 
-.path a {
-  color: var(--subtext-a);
+.masthead a {
+  font-size: 1.44rem;
+  font-weight: 600;
+  color: var(--ink);
   text-decoration: none;
 }
 
-.path a:hover {
-  color: var(--text);
-  text-decoration: underline;
+.masthead a:hover {
+  color: #000;
 }
 
-.title {
-  font-family: var(--serif);
-  font-size: 2.2rem;
-  font-weight: 500;
-  margin: 0.2rem 0 0.1rem;
-  color: var(--text);
+.side-rail nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
-.metadata {
-  font-size: 0.85rem;
-  color: var(--overlay-a);
+.side-rail nav li + li {
+  margin-top: 0.75rem;
+}
+
+.pill {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: var(--pill);
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background 0.15s ease, padding-left 0.15s ease;
+}
+
+.pill:hover {
+  background: var(--panel);
+  color: #000;
+  padding-left: 0.95rem;
+}
+
+.elsewhere {
+  display: flex;
+  gap: 1.35rem;
+  padding: 0.5rem 0;
+  margin-top: 0.75rem;
+}
+
+.elsewhere a {
+  color: #7c7f93;
+  display: inline-flex;
+  padding: 2px;
+}
+
+.elsewhere a:hover {
+  color: var(--ink);
+}
+
+.elsewhere svg {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+}
+
+/* Page header block: small sans-serif breadcrumb, big sans-serif title,
+   tiny italic date. The serif starts below it. */
+
+.page-top {
+  font-family: var(--sans);
+  line-height: 1.5;
   margin-bottom: 1.6rem;
 }
 
-.main-content a {
+.crumbs {
+  font-size: 14px;
+  color: #585b70;
+}
+
+.reading-panel .crumbs a {
+  color: var(--darkblue);
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.reading-panel .crumbs a:hover {
+  text-decoration: underline;
+}
+
+.crumbs .sep {
+  color: var(--faint);
+  margin: 0 5px;
+}
+
+.page-top h1 {
+  font-family: var(--sans);
+  font-size: 2.44rem;
+  font-weight: bold;
+  color: #262525;
+  margin: 6px 0;
+  padding-top: 6px;
+  letter-spacing: 0;
+}
+
+.dateline {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--quieter);
+}
+
+/* Body copy */
+
+.reading-panel p {
+  margin: 1.2rem 0;
+  line-height: 1.5;
+}
+
+.reading-panel a {
   color: var(--link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  transition: color 0.2s ease;
 }
 
-/* Uncompleted items */
+.reading-panel a:hover {
+  color: var(--blue);
+  text-decoration: none;
+}
 
-.todo-list {
+.reading-panel code {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  background: var(--field);
+  border-radius: 8px;
+  padding: 0 0.2rem;
+}
+
+/* Item lists: small round dot markers instead of default bullets */
+
+.reading-panel ul {
   list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
+  margin: 0.8rem 0;
+  padding-left: 2rem;
+  line-height: 1.5;
 }
 
-.todo-list li {
-  padding-left: 1.7rem;
+.reading-panel li {
+  margin: 0.4rem 0;
   position: relative;
 }
 
-.todo-list li::before {
+.reading-panel li::before {
   content: "";
   position: absolute;
-  left: 0;
-  top: 0.35em;
-  width: 0.85em;
-  height: 0.85em;
-  border: 1.5px solid var(--overlay-a);
-  border-radius: 3px;
-  background: var(--mantle);
+  left: -1rem;
+  top: 0.55em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--quiet);
 }
 
 .todo-tag {
-  color: var(--overlay-a);
-  font-size: 0.85rem;
-  white-space: nowrap;
+  color: var(--faint);
+  font-style: italic;
 }
 
-/* Small screens: sidebar stacks above content */
+/* Narrower screens: give up the rails before touching the panel */
 
-@media (max-width: 839px) {
-  .layout {
+@media (max-width: 1439px) {
+  .side-rail.right,
+  .shell > .gap.right {
+    display: none;
+  }
+}
+
+@media (max-width: 1139px) {
+  .shell {
     flex-direction: column;
-    align-items: stretch;
-    gap: 1.2rem;
-    padding: 1.2rem 0.8rem 3rem;
+    align-items: center;
+    height: auto;
+    overflow: visible;
   }
 
-  .sidebar {
-    position: static;
+  body {
+    overflow: auto;
+  }
+
+  .side-rail {
     width: 100%;
+    max-width: 768px;
+    padding: 0.8rem 1rem 0;
   }
 
-  .nav-list {
-    flex-direction: row;
+  .masthead {
+    margin: 0.4rem 0;
+    padding-bottom: 0.4rem;
+  }
+
+  .side-rail nav ul {
+    display: flex;
     flex-wrap: wrap;
+    gap: 0.5rem;
   }
 
-  .main-content {
-    width: 100%;
-    padding: 1.5rem 1.2rem;
+  .side-rail nav li + li {
+    margin-top: 0;
+  }
+
+  .elsewhere {
+    display: none;
+  }
+
+  .reading-panel {
+    height: auto;
+    min-height: 70vh;
+    margin-top: 0.8rem;
+    padding: 1.5rem 1rem 6rem;
   }
 }
