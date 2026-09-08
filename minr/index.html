@@ -38,10 +38,16 @@
           <h1 class="title">Minr</h1>
           <div class="metadata"><span>published September 08, 2026</span></div>
         </header>
-        <p>Tools and scripts for <a href="https://forums.minr.org/">Minr</a>, the Minecraft challenge server.</p>
+        <p>Systems and engines for <a href="https://forums.minr.org/">Minr</a>, the Minecraft challenge server, written in MSC &mdash; a small event-driven language with no bitwise operators, no <code>break</code>, lists capped at 1000 elements, and one shared server tick budget. Most of the fun is building real systems inside those limits.</p>
         <ul class="todo-list">
-          <li><a href="/rymaphub/">RYmaphub</a> turns any image into dithered Minecraft map art and hands you chat messages that build it in game. <span class="todo-tag">(perpetually unfinished)</span></li>
-          <li>A Minr statistics dashboard. <span class="todo-tag">(not done yet)</span></li>
+          <li><a href="/rymaphub/">RYmaphub</a>: a map-art importer that moves 128&times;128 images through the chat box &mdash; symbols indexed into a 2,980-character CJK alphabet, run-length coding, per-message checksums. The browser encoder runs here; the decoder runs in game. <span class="todo-tag">(writeup not done yet)</span></li>
+          <li>rychess: a chess engine &mdash; negamax alpha-beta with quiescence &mdash; plus a physical board of block-display entities. The opponent walks to the board and moves the pieces. Moves are packed into a single Int by multiply and modulo, because there are no bit operators. <span class="todo-tag">(writeup not done yet)</span></li>
+          <li>slimeMaze: a procedural generator for a seamless slime-bounce maze of roughly 815,000 blocks, where every dead end is a translated copy of a live corridor and a relative teleport means you never notice the end. <span class="todo-tag">(writeup not done yet)</span></li>
+          <li>mannequin: a reimplementation of Minecraft player movement &mdash; sprint acceleration, drag, swept AABB collision &mdash; so an armour stand can sprint, jump, and coast like a player. <span class="todo-tag">(writeup not done yet)</span></li>
+          <li>nfa: build a nondeterministic finite automaton out of blocks, draw its transitions as particle splines, and run strings through it, with a graded bank of over 100 exercises. <span class="todo-tag">(writeup not done yet)</span></li>
+          <li>entity_ai: a repaired build of a broken armour-stand animation library &mdash; root-caused a silent break on 1.21.6+ and shipped a minimal patch. <span class="todo-tag">(writeup not done yet)</span></li>
+          <li>Harha: production scripts for the Harha map &mdash; stages, checkpoints, cosmetics, leaderboards, note-block music. <span class="todo-tag">(writeup not done yet)</span></li>
+          <li>An MSC language reference, maintained because there is no official one. <span class="todo-tag">(not published yet)</span></li>
         </ul>
       </main>
     </div>
