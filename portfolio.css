@@ -1,0 +1,295 @@
+/* Portfolio stylesheet for the landing page only.
+   The tool pages (rymaphub) keep using styles.css. */
+
+:root {
+  --paper: #fcfbf9;
+  --ink: #10233b;
+  --muted: #57677b;
+  --line: #e2e0da;
+  --accent: #c75b12;
+  --accent-bright: #e87722;
+  --tile-hidden: #dde3ea;
+  --tile-empty: #f1efe9;
+  --tile-hit: #e87722;
+  --serif: "Fraunces", Georgia, "Times New Roman", serif;
+  --sans: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #0e1826;
+    --ink: #e4e9f0;
+    --muted: #93a2b4;
+    --line: #263548;
+    --accent: #f08a3c;
+    --accent-bright: #f08a3c;
+    --tile-hidden: #223349;
+    --tile-empty: #162335;
+    --tile-hit: #e87722;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 1.02rem;
+  line-height: 1.65;
+}
+
+body > header,
+main,
+body > footer {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+a {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+a:hover {
+  color: var(--accent-bright);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-bright);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0.5rem 1rem;
+}
+
+.skip-link:focus {
+  left: 0;
+  z-index: 10;
+}
+
+/* Header */
+
+.top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.4rem 1rem;
+  padding-top: 1.4rem;
+  padding-bottom: 1.4rem;
+}
+
+.wordmark {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.top nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.4rem;
+}
+
+.top nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.top nav a:hover {
+  color: var(--accent);
+}
+
+/* Hero */
+
+.hero {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2.5rem;
+  align-items: start;
+  padding: 2.5rem 0 1rem;
+}
+
+.hero h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(2.4rem, 6vw, 3.4rem);
+  line-height: 1.05;
+  margin: 0 0 1rem;
+  letter-spacing: -0.01em;
+}
+
+.lede {
+  font-size: 1.15rem;
+  line-height: 1.55;
+  margin: 0 0 0.9rem;
+}
+
+.auburn {
+  font-weight: 600;
+}
+
+.id-links {
+  list-style: none;
+  padding: 0;
+  margin: 1.3rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.5rem;
+  font-size: 0.95rem;
+  overflow-wrap: anywhere;
+}
+
+/* Puzzle */
+
+.puzzle {
+  margin: 0.5rem 0 0;
+  width: 13.5rem;
+}
+
+.puzzle-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+}
+
+.puzzle-grid button {
+  aspect-ratio: 1;
+  border: none;
+  border-radius: 3px;
+  background: var(--tile-hidden);
+  cursor: pointer;
+  padding: 0;
+  transition: background 120ms ease, transform 120ms ease;
+}
+
+.puzzle-grid button:hover:not(:disabled) {
+  transform: scale(1.06);
+}
+
+.puzzle-grid button:disabled {
+  cursor: default;
+}
+
+.puzzle-grid button.empty {
+  background: var(--tile-empty);
+}
+
+.puzzle-grid button.hit {
+  background: var(--tile-hit);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .puzzle-grid button {
+    transition: none;
+  }
+}
+
+.puzzle figcaption {
+  margin-top: 0.7rem;
+  font-size: 0.83rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+#puzzle-status {
+  display: block;
+  color: var(--ink);
+  font-weight: 500;
+  margin-bottom: 0.15rem;
+}
+
+/* Sections */
+
+.section {
+  padding: 2.2rem 0 0.5rem;
+}
+
+.section h2,
+footer h2 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 1.7rem;
+  margin: 0 0 0.4rem;
+}
+
+.project {
+  margin: 1.8rem 0;
+  max-width: 42rem;
+}
+
+.project h3 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 1.25rem;
+  margin: 0 0 0.35rem;
+}
+
+.project h3 a {
+  color: var(--ink);
+  text-decoration-color: var(--accent);
+}
+
+.project h3 a:hover {
+  color: var(--accent);
+}
+
+.project p {
+  margin: 0 0 0.4rem;
+}
+
+.project-meta {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+#education p {
+  max-width: 42rem;
+}
+
+/* Footer */
+
+footer {
+  padding-top: 2.2rem;
+  padding-bottom: 3.5rem;
+}
+
+footer > p {
+  max-width: 42rem;
+}
+
+.colophon {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+/* Small screens */
+
+@media (max-width: 640px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 1.8rem;
+  }
+
+  .puzzle {
+    width: min(13.5rem, 70vw);
+  }
+}

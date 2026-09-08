@@ -3,50 +3,212 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>RYgamer's Site</title>
-    <link rel="stylesheet" href="/styles.css" />
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%236d4ce6'/%3E%3Crect x='3' y='3' width='4.5' height='4.5' fill='%23f7f7f5'/%3E%3Crect x='8.5' y='3' width='4.5' height='4.5' fill='%23e5c07b'/%3E%3Crect x='3' y='8.5' width='4.5' height='4.5' fill='%2356b6c2'/%3E%3Crect x='8.5' y='8.5' width='4.5' height='4.5' fill='%2398c379'/%3E%3C/svg%3E" />
+    <title>Ryan Sanders</title>
+    <meta
+      name="description"
+      content="Ryan Sanders is a computer science senior at Auburn University (class of 2026) building reinforcement-learning agents, game systems, and browser tools. Portfolio, projects, and contact."
+    />
+    <meta property="og:title" content="Ryan Sanders" />
+    <meta
+      property="og:description"
+      content="Computer science senior at Auburn University building reinforcement-learning agents, game systems, and browser tools."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://rysanders18.github.io/" />
+    <link rel="canonical" href="https://rysanders18.github.io/" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%2310233B'/%3E%3Crect x='3' y='3' width='4.5' height='4.5' fill='%23E87722'/%3E%3Crect x='8.5' y='3' width='4.5' height='4.5' fill='%23DCE3EC'/%3E%3Crect x='3' y='8.5' width='4.5' height='4.5' fill='%23DCE3EC'/%3E%3Crect x='8.5' y='8.5' width='4.5' height='4.5' fill='%23E87722'/%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450;9..144,600;9..144,700&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+    />
+    <link rel="stylesheet" href="/portfolio.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Ryan Sanders",
+        "url": "https://rysanders18.github.io/",
+        "email": "mailto:ryanpatrick535@gmail.com",
+        "sameAs": [
+          "https://github.com/rysanders18",
+          "https://www.linkedin.com/in/ryansanders18"
+        ],
+        "alumniOf": {
+          "@type": "CollegeOrUniversity",
+          "name": "Auburn University"
+        }
+      }
+    </script>
   </head>
   <body>
-    <header class="site-header">
-      <div class="inner">
-        <a href="/" class="site-title">RYgamer</a>
-        <nav class="site-nav">
-          <a href="/" class="active">home</a>
-          <a href="/rymaphub/">rymaphub</a>
-          <a href="/principia-biscotica/">principia</a>
-        </nav>
-      </div>
+    <a class="skip-link" href="#projects">Skip to projects</a>
+
+    <header class="top">
+      <span class="wordmark">Ryan Sanders</span>
+      <nav aria-label="Site">
+        <a href="#projects">Projects</a>
+        <a href="#education">Education</a>
+        <a href="#contact">Contact</a>
+      </nav>
     </header>
 
     <main>
-      <h1>RYgamer's Site</h1>
-      <p class="lede">
-        Tools for <a href="https://forums.minr.org/">Minr</a>, the Minecraft
-        challenge server.
-      </p>
+      <section class="hero">
+        <div class="hero-text">
+          <h1>Ryan Sanders</h1>
+          <p class="lede">
+            Computer science senior at
+            <span class="auburn">Auburn University</span>, class of 2026, with
+            an undergraduate certificate in artificial intelligence.
+          </p>
+          <p>
+            I like problems where the modeling is the hard part: teaching a
+            neural network to solve a puzzle it can only partially observe, or
+            squeezing an entire image through a chat protocol six characters at
+            a time. Most of what I build ships somewhere real&nbsp;&mdash; a few
+            of the tools below run live on this site.
+          </p>
+          <ul class="id-links">
+            <li><a href="mailto:ryanpatrick535@gmail.com">ryanpatrick535@gmail.com</a></li>
+            <li><a href="https://github.com/rysanders18">github.com/rysanders18</a></li>
+            <li><a href="https://www.linkedin.com/in/ryansanders18">linkedin.com/in/ryansanders18</a></li>
+          </ul>
+        </div>
 
-      <h2>Tools</h2>
-      <ul class="tool-list">
-        <li>
-          <a href="/rymaphub/">RYmaphub</a> turns any image into dithered
-          Minecraft map art and hands you chat messages that build it in game.
-        </li>
-      </ul>
+        <figure class="puzzle" aria-label="Playable five by five rescue puzzle">
+          <div
+            id="puzzle-grid"
+            class="puzzle-grid"
+            role="grid"
+            aria-label="Puzzle grid. Click tiles to search for the hidden pattern."
+          ></div>
+          <figcaption>
+            <span id="puzzle-status">Click tiles to find the hidden animal.</span>
+            This is the 5&times;5 rescue puzzle from Disco Zoo&nbsp;&mdash; the
+            same one <a href="#project-disco-zoo">my DQN agent</a> learns to
+            solve.
+          </figcaption>
+        </figure>
+      </section>
 
-      <h2>Papers</h2>
-      <ul class="tool-list">
-        <li>
-          <a href="/principia-biscotica/">Principia Biscotica</a> derives the
-          optimal upgrade order for the cookie clicker in Harder Hat secret 16,
-          with considerably more mathematics than the problem requires.
-        </li>
-      </ul>
+      <section id="projects" class="section">
+        <h2>Projects</h2>
+
+        <article class="project" id="project-disco-zoo">
+          <h3>
+            <a href="https://github.com/rysanders18/disco-zoo-rl">Disco Zoo reinforcement learning</a>
+          </h3>
+          <p>
+            A Deep Q-Network agent that learns Disco Zoo&rsquo;s rescue puzzle:
+            find hidden animals on a 5&times;5 grid before the moves run out.
+            The interesting half is an exact constraint-satisfaction probability
+            engine that enumerates every placement consistent with the revealed
+            tiles and feeds the resulting per-animal heatmaps into the network
+            as a (5,&thinsp;5,&thinsp;14) state tensor. The agent is a
+            convolutional DQN (~507k parameters) trained with a four-phase
+            curriculum in a custom Gymnasium environment, with unit tests over
+            both the environment and the probability engine. The heatmap policy
+            alone already lifts completion rate from 9% (random) to 58%.
+          </p>
+          <p class="project-meta">Python, PyTorch, Gymnasium, NumPy, pytest</p>
+        </article>
+
+        <article class="project">
+          <h3><a href="/rymaphub/">RYmaphub</a></h3>
+          <p>
+            A browser tool that turns any image into dithered Minecraft map art
+            and hands you the chat messages that rebuild it in game. It
+            quantizes colors by nearest-neighbor search in CIELAB space,
+            dithers with Floyd&ndash;Steinberg error diffusion, then encodes the
+            result into a custom chat-message wire protocol I designed
+            (currently v6), decoded in game by a script I wrote for the Minr
+            server. A round-trip test suite keeps the browser encoder and the
+            in-game decoder honest with each other.
+            <a href="/rymaphub/">Runs live on this site</a>, with
+            <a href="https://github.com/rysanders18/rysanders18.github.io">source on GitHub</a>.
+          </p>
+          <p class="project-meta">JavaScript, canvas, color science, protocol design</p>
+        </article>
+
+        <article class="project">
+          <h3><a href="/principia-biscotica/">Principia Biscotica</a></h3>
+          <p>
+            A paper deriving the optimal upgrade order for a cookie-clicker
+            minigame, with considerably more mathematics than the problem
+            required. It casts the game as a purchase-scheduling problem,
+            writes down the Hamilton&ndash;Jacobi&ndash;Bellman inequality for
+            the completion-time functional, and arrives at an index policy
+            whose 331-purchase trajectory finishes in 1,365 seconds&nbsp;&mdash;
+            where a width-600 beam search stalls in a local optimum at 7,585.
+            <a href="/principia-biscotica/">Read it here</a>.
+          </p>
+          <p class="project-meta">Dynamic programming, optimization, mathematical writing</p>
+        </article>
+
+        <article class="project">
+          <h3><a href="https://github.com/rysanders18/Aim-Clicker">Aim Clicker</a></h3>
+          <p>
+            A team project for COMP 5970 that crosses an aim trainer with an
+            idle game: raycast-based shooting at 3D targets earns money that
+            buys passive-income upgrades. Built in Unity with C# gameplay
+            systems and custom HLSL/ShaderLab shaders.
+          </p>
+          <p class="project-meta">Unity, C#, HLSL, team of four</p>
+        </article>
+
+        <article class="project">
+          <h3>
+            <a href="https://github.com/rysanders18/MPKMod-26.1-NoRedGlow">MPKMod for Minecraft 26.1</a>
+          </h3>
+          <p>
+            An unofficial build of MPKMod2, a movement-analysis mod, updated to
+            run on Minecraft 26.1 with Fabric and modified to remove the red
+            landing-block glow. Small in scope, but a real exercise in reading
+            someone else&rsquo;s codebase, porting it across game versions, and
+            publishing a build other players use.
+          </p>
+          <p class="project-meta">Java, Fabric, open-source maintenance</p>
+        </article>
+      </section>
+
+      <section id="education" class="section">
+        <h2>Education</h2>
+        <p>
+          <strong>Auburn University</strong> &mdash; B.S. in Computer Science,
+          expected 2026, with an Undergraduate Certificate in Artificial
+          Intelligence. Coursework and projects lean toward machine learning,
+          game development, and algorithms.
+        </p>
+        <p>
+          Day to day I work in Python (PyTorch, Gymnasium, NumPy), C# with
+          Unity, JavaScript, and Java, and I write tests for the parts that
+          would fail silently otherwise.
+        </p>
+      </section>
     </main>
 
-    <footer>
-      Source on
-      <a href="https://github.com/rysanders18/rysanders18.github.io">GitHub</a>.
+    <footer id="contact">
+      <h2>Contact</h2>
+      <p>
+        The fastest way to reach me is email:
+        <a href="mailto:ryanpatrick535@gmail.com">ryanpatrick535@gmail.com</a>.
+        I&rsquo;m also on
+        <a href="https://www.linkedin.com/in/ryansanders18">LinkedIn</a> and
+        <a href="https://github.com/rysanders18">GitHub</a>, or by phone at
+        <a href="tel:+14705890016">+1 (470) 589-0016</a>.
+      </p>
+      <p class="colophon">
+        Hand-built with plain HTML, CSS, and JavaScript&nbsp;&mdash; no
+        framework, no build step.
+        <a href="https://github.com/rysanders18/rysanders18.github.io">Source on GitHub</a>.
+      </p>
     </footer>
+
+    <script src="/puzzle.js" defer></script>
   </body>
 </html>
