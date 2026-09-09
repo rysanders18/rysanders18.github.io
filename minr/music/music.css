@@ -1,0 +1,223 @@
+/* Converter widget for /minr/music/. Sits inside the site.css reading panel
+   and borrows its tokens; the widget itself is set in the sans face so it
+   reads as an instrument rather than prose. */
+
+.converter {
+  max-width: 520px;
+  margin: 1.5rem auto;
+  font-family: var(--sans);
+}
+
+.dropzone {
+  border: 2px dashed var(--edge);
+  border-radius: 12px;
+  padding: 2.4rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  color: var(--quiet);
+  font-size: 0.85rem;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.dropzone:hover,
+.dropzone:focus-visible,
+.dropzone.over {
+  border-color: var(--blue);
+  background: hsla(197, 97%, 46%, 0.06);
+  outline: none;
+}
+
+.dropzone .drop-icon {
+  font-size: 1.9rem;
+  margin-bottom: 0.45rem;
+}
+
+.dropzone .drop-hint {
+  font-size: 0.72rem;
+  color: var(--faint);
+  margin-top: 0.3rem;
+}
+
+.dropzone input[type="file"] {
+  display: none;
+}
+
+/* Options row: segmented stereo/mono, then the two small extras */
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem 1.2rem;
+  margin: 0.8rem auto 0;
+  font-size: 0.76rem;
+  color: var(--quiet);
+}
+
+.mode-toggle {
+  display: flex;
+  gap: 2px;
+  background: var(--field);
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.mode-btn {
+  padding: 0.28rem 0.95rem;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 0.76rem;
+  color: var(--quieter);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.mode-btn.active {
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.options label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+}
+
+.options input[type="checkbox"] {
+  accent-color: var(--blue);
+  margin: 0;
+}
+
+.options input[type="text"] {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  width: 8.5rem;
+  padding: 0.2rem 0.4rem;
+  border: 1px solid var(--edge);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+}
+
+.options input[type="text"]:focus {
+  outline: none;
+  border-color: var(--blue);
+}
+
+/* Output cards, newest first */
+
+.out-card {
+  margin-top: 0.8rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 10px;
+  background: var(--pill);
+  border: 1px solid var(--edge);
+  font-size: 0.8rem;
+  color: var(--quiet);
+}
+
+.out-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.out-info {
+  min-width: 0;
+}
+
+.out-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.out-file {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--quieter);
+  margin-top: 0.1rem;
+}
+
+.out-stats {
+  font-size: 0.72rem;
+  color: var(--quieter);
+  margin-top: 0.2rem;
+  line-height: 1.4;
+}
+
+.out-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.35rem;
+}
+
+.act {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--edge);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.reading-panel a.act {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.act:hover,
+.reading-panel a.act:hover {
+  border-color: var(--blue);
+  color: var(--darkblue);
+}
+
+.out-warn {
+  margin-top: 0.55rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 6px;
+  background: hsla(28, 84%, 57%, 0.12);
+  color: #b45f1a;
+  font-size: 0.74rem;
+}
+
+.out-preview {
+  margin: 0.65rem 0 0;
+  padding: 0.5rem 0.65rem;
+  border-radius: 6px;
+  background: var(--field);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  line-height: 1.45;
+  color: var(--quiet);
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.out-error {
+  margin-top: 0.8rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  background: hsla(355, 76%, 60%, 0.1);
+  color: var(--maroon);
+  font-size: 0.78rem;
+}
+
+@media (max-width: 600px) {
+  .out-head {
+    flex-direction: column;
+  }
+}
