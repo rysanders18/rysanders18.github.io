@@ -197,6 +197,14 @@ body {
   line-height: 1.5;
 }
 
+.reading-panel h2 {
+  font-family: var(--sans);
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #262525;
+  margin: 2rem 0 0.4rem;
+}
+
 .reading-panel a {
   color: var(--link);
   text-decoration: underline;

@@ -50,6 +50,11 @@
           <li>entity_ai: a repaired build of a broken armour-stand animation library &mdash; root-caused a silent break on 1.21.6+ and shipped a minimal patch. <span class="todo-tag">(writeup not done yet)</span></li>
           <li>An MSC language reference, maintained because there is no official one. <span class="todo-tag">(not published yet)</span></li>
         </ul>
+        <h2 id="tools">Tools</h2>
+        <p>Scripts that live outside the server and generate MSC for it.</p>
+        <ul>
+          <li><a href="https://github.com/rysanders18/Minr-Scrips/blob/main/tools/nbs-to-msc.py">nbs-to-msc</a>: a Note Block Studio to MSC compiler. The obvious approach &mdash; one <code>/playsound</code> line per note &mdash; blows past the paste size limit on any real song, so instead the song is packed into parallel instrument, volume, pitch, and panning arrays and replayed by a single <code>@for</code> loop, with multi-tick rests folded into one entry. Per-note cost drops from about 140 characters to about 25. Handles stereo panning via block offsets and chunks songs to respect the 1000-element list cap. Used for the music in Harder Hat. <span class="todo-tag">(writeup not done yet)</span></li>
+        </ul>
       </main>
 
       <div class="gap right"></div>
